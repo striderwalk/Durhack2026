@@ -1,5 +1,5 @@
 {# InterestPage: an interest, related interests, and the students who have it.
-   Data: interest_api.py. The "+" button and Wave buttons wait on backend endpoints. #}
+Data: interest_api.py. The "+" button and Wave buttons wait on backend endpoints. #}
 {% extends "base.html" %}
 
 {% block title %}{{ i.name }}{% endblock %}
@@ -14,7 +14,7 @@
 {% set cat_name, cat_bg, cat_fg = category_style(i.category_slug) %}
 <div class="interest-page" style="--cat-bg: {{ cat_bg }}; --cat-fg: {{ cat_fg }}">
 	{# BackButton: goes back in the browser history when you came from elsewhere in
-	   the app (static/interest.js); otherwise, and without JavaScript, it opens "/". #}
+	the app (static/interest.js); otherwise, and without JavaScript, it opens "/". #}
 	<a class="back-button" href="/" id="back-button" aria-label="Go back">
 		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
 			stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -28,31 +28,36 @@
 			<h1 class="interest-name">{{ i.name }}</h1>
 
 			{# InterestActions: on the right of the title row, level with the title.
-			   The round "+" / tick button is last, so it sits at the right edge. #}
+			The round "+" / tick button is last, so it sits at the right edge. #}
 			<div class="interest-actions">
 				{# Only the creator sees Edit. TODO(backend): no endpoint to update an interest, and
-				   nothing on the server checks the creator, so it can't do anything yet. #}
+				nothing on the server checks the creator, so it can't do anything yet. #}
 				{% if i.viewer_is_creator %}
-				<button type="button" class="btn btn-sm btn-outline-secondary interest-edit" disabled aria-describedby="interest-edit-note">Edit</button>
+				<!-- <button type="button" class="btn btn-sm btn-outline-secondary interest-edit" disabled aria-describedby="interest-edit-note">Edit</button> -->
 				{% endif %}
-				<span class="interest-toggle-label" aria-hidden="true">{{ "Added · tap to remove" if i.viewer_has_interest else "Add to my interests" }}</span>
+				<span class="interest-toggle-label" aria-hidden="true">{{ "Added · tap to remove" if
+					i.viewer_has_interest else "Add to my interests" }}</span>
 				{# InterestToggle: add or remove this interest from your profile (POST /update-account) #}
 				<button type="button" class="interest-toggle" id="interest-toggle" data-name="{{ i.name }}"
 					aria-pressed="{{ 'true' if i.viewer_has_interest else 'false' }}"
 					aria-label="{{ 'Remove from my interests' if i.viewer_has_interest else 'Add to my interests' }}"
 					aria-describedby="interest-toggle-status">
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-						{% if i.viewer_has_interest %}<path d="m5 12.5 4.5 4.5L19 7.5" />{% else %}<path d="M12 5v14M5 12h14" />{% endif %}
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						{% if i.viewer_has_interest %}
+						<path d="m5 12.5 4.5 4.5L19 7.5" />{% else %}
+						<path d="M12 5v14M5 12h14" />{% endif %}
 					</svg>
 				</button>
 			</div>
 		</div>
 		{% if i.viewer_is_creator %}
-		<p class="interest-edit-note" id="interest-edit-note">You created this interest. Editing isn't available yet: the backend has no way to save changes.</p>
+		<p class="interest-edit-note" id="interest-edit-note">You created this interest.</p>
 		{% endif %}
 
 		<p class="interest-category">
-			{% if i.category %}<span class="category-label">{{ i.category }}</span>{% else %}<span class="category-label">Uncategorised</span>{% endif %}
+			{% if i.category %}<span class="category-label">{{ i.category }}</span>{% else %}<span
+				class="category-label">Uncategorised</span>{% endif %}
 		</p>
 		<p class="interest-toggle-status" id="interest-toggle-status" role="status"></p>
 		{# Report: anyone but the creator. The server refuses your own interest anyway. #}
@@ -83,7 +88,8 @@
 			{% set name, bg, fg = category_style(r.category_slug) %}
 			<li>
 				<a class="interest-pill" href="{{ r.url }}" style="--pill-bg: {{ bg }}; --pill-fg: {{ fg }}">
-					{{ r.name }}<span class="pill-cat"><span class="visually-hidden">, category: </span>{{ name }}</span>
+					{{ r.name }}<span class="pill-cat"><span class="visually-hidden">, category: </span>{{ name
+						}}</span>
 				</a>
 			</li>
 			{% endfor %}
@@ -93,7 +99,8 @@
 
 	<section class="interest-people" aria-labelledby="people-title">
 		<h2 id="people-title">
-			{{ i.interested_count }} interested{% if i.viewer_has_interest %} <span class="people-you">(including you)</span>{% endif %}
+			{{ i.interested_count }} interested{% if i.viewer_has_interest %} <span class="people-you">(including
+				you)</span>{% endif %}
 		</h2>
 
 		{% set others = i.interested_count - (1 if i.viewer_has_interest else 0) %}
