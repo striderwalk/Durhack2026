@@ -35,6 +35,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import selectinload
 
 import discovery
+import moderation
 from colours import AVATAR_COLOURS, category_slug, category_style
 from models import Connection, Interest, Tag, User, UserContact, UserInterest, db
 
@@ -71,7 +72,8 @@ def get_profile(user_id, viewer, preview_as=None):
 			.selectinload(Tag.categories)
 		)
 	)
-	if user is None:
+	# Blocked either way: the profile looks as if it doesn't exist (moderation.py)
+	if user is None or user.user_id in moderation.blocked_ids(viewer.user_id):
 		raise ProfileNotFound(user_id)
 
 	relation, wave_status = _relation(viewer.user_id, user.user_id)
@@ -109,7 +111,7 @@ def to_profile(user):
         "year": user.year or None,
         "show_year": bool(user.show_year and user.year),
         "avatar_colour": user.avatar_colour or fallback_avatar(user.user_id),
-        "interests": [_interest(ui.interest) for ui in user.user_interests],
+        "interests": [_interest(ui.interest) for ui in moderation.visible_interests(user.user_interests)],
         "bio": user.bio or "",
         "bio_published": bool(user.bio_published),
         "connection_count": _connection_count(user.user_id),
@@ -208,7 +210,7 @@ def get_suggestions(user, exclude_ids=(), limit=SUGGESTIONS):
 	similarity function, discovery.related_interests() (shared tags, also used for
 	"You might like" on interest pages), across all the user's interests.
 	"""
-	owned = [ui.interest for ui in user.user_interests]
+	owned = [ui.interest for ui in moderation.visible_interests(user.user_interests)]
 	skip = {i.interest_id for i in owned} | set(exclude_ids)
 	scores = {}
 	found = {}
@@ -282,7 +284,8 @@ def get_connections(user_id, viewer):
     When `viewer` is `user_id`, also includes incoming and outgoing pending waves.
     """
     target = db.session.get(User, user_id)
-    if target is None:
+    hidden = moderation.blocked_ids(viewer.user_id)  # blocked either way: never listed
+    if target is None or target.user_id in hidden:
         raise ProfileNotFound(user_id)
 
     is_self = viewer.user_id == target.user_id
@@ -320,6 +323,9 @@ def get_connections(user_id, viewer):
             else:
                 outgoing_ids.append(row.addressee_id)
 
+    connected_ids = [uid for uid in connected_ids if uid not in hidden]
+    incoming_ids = [uid for uid in incoming_ids if uid not in hidden]
+    outgoing_ids = [uid for uid in outgoing_ids if uid not in hidden]
     all_ids = list(dict.fromkeys(connected_ids + incoming_ids + outgoing_ids))
     users_by_id = (
         {
