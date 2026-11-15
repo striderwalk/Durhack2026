@@ -87,7 +87,7 @@ class LegalTest(unittest.TestCase):
 
 	def test_registration_needs_the_box_too(self):
 		client = app.test_client()
-		data = {"username": "zzlegal", "email": "zz.legal@durham.ac.uk", "password": "longpassword1", "confirm_password": "longpassword1"}
+		data = {"username": "zzlegal", "email": "zzlegal@durham.ac.uk", "password": "longpassword1", "confirm_password": "longpassword1"}
 		self.assertEqual(client.post("/register", data=data).status_code, 400)
 		try:
 			self.assertEqual(client.post("/register", data={**data, "agree_terms": "yes"}).status_code, 200)

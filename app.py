@@ -98,11 +98,14 @@ def register():
 		if password != confirm_password:
 			return flask.render_template("register.html")
 
-		# Durham students only: the address must be a Durham one
-		if not email.lower().endswith("@durham.ac.uk"):
+		# Durham students only: a student-style @durham.ac.uk address. Staff addresses
+		# are firstname.lastname@, so a dot before the @ is refused. This restricts
+		# sign-up only; it does NOT prove the person owns the inbox.
+		local, _, domain = email.lower().rpartition("@")
+		if domain != "durham.ac.uk" or not local or "." in local:
 			return flask.render_template(
 				"register.html",
-				error="This site is for Durham students only. Please use your student @durham.ac.uk address.",
+				error="Please use your student @durham.ac.uk address.",
 			)
 
 		if auth.is_user(email, username):

@@ -24,7 +24,7 @@ class BackendChangesTest(unittest.TestCase):
 	def tearDown(self):
 		# Remove the test users and interests made below
 		with app.app_context():
-			for name in ("zztest01", "zztest02"):
+			for name in ("zztest01", "zztest02", "zzoldstaff"):
 				user = User.query.filter_by(username=name).first()
 				if user:
 					db.session.delete(user)
@@ -47,9 +47,40 @@ class BackendChangesTest(unittest.TestCase):
 
 	def test_registration_refuses_non_durham_addresses(self):
 		response = self.register("zztest02", "zztest02@gmail.com")
-		self.assertIn(b"Durham students only", response.data)
+		self.assertIn(b"Please use your student @durham.ac.uk address.", response.data)
 		with app.app_context():
 			self.assertIsNone(User.query.filter_by(username="zztest02").first())
+
+	def test_registration_accepts_only_student_style_addresses(self):
+		# Staff-style (a dot before the @), look-alike domains and sub-domains are refused
+		for email in ("jane.smith@durham.ac.uk", "zztest02@durham.ac.uk.evil.com",
+				"zztest02@mail.durham.ac.uk", "zztest02@notdurham.ac.uk", "@durham.ac.uk"):
+			with self.subTest(email=email):
+				response = self.register("zztest02", email)
+				self.assertIn(b"Please use your student @durham.ac.uk address.", response.data)
+				with app.app_context():
+					self.assertIsNone(User.query.filter_by(username="zztest02").first())
+		# A student-style address in capitals still works
+		self.assertEqual(self.register("zztest02", "ZZTEST02@Durham.ac.uk").status_code, 200)
+		with app.app_context():
+			self.assertIsNotNone(User.query.filter_by(username="zztest02").first())
+
+	def test_existing_staff_style_accounts_can_still_sign_in(self):
+		# Only sign-up is restricted: an account made before the rule keeps working
+		with app.app_context():
+			user = User(username="zzoldstaff", email="old.staff@durham.ac.uk")
+			user.set_password(PASSWORD)
+			db.session.add(user)
+			db.session.commit()
+		try:
+			client = app.test_client()
+			response = client.post("/login", data={"identifier": "zzoldstaff", "password": PASSWORD, "agree_terms": "yes"})
+			self.assertEqual(response.status_code, 302)
+			self.assertEqual(client.get("/settings").status_code, 200)
+		finally:
+			with app.app_context():
+				db.session.execute(User.__table__.delete().where(User.username == "zzoldstaff"))
+				db.session.commit()
 
 	def test_update_account_cannot_change_username(self):
 		self.client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})
