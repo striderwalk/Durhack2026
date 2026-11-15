@@ -628,3 +628,19 @@ Pages: `/mod`, `/mod/flags/<id>`, `/mod/users`, `/mod/users/<id>`, `/mod/audit` 
 - `401 {"error": "signin_required"}` when signed out;
 - `403 {"error": "banned", "type", "expires_at", "contact"}` when banned;
 - `429` after too many failed sign-ins.
+
+---
+
+# Terms acceptance and legal pages (legal.py)
+
+| Method | Path | Body | Answer | Who |
+|---|---|---|---|---|
+| GET | `/terms`, `/privacy` | – | the pages | everyone, including banned users |
+| GET | `/accept-terms?next=` | – | the acceptance screen | signed in |
+| POST | `/accept-terms` | form `agree_terms`, `next` | redirect to `next` (same site only); 400 without the box | signed in |
+| POST | `/api/terms/accept` | JSON `{agree: true, version}` | `{accepted: true, version}`; 400 if not ticked or an old version | signed in |
+| GET | `/api/session` | – | `{user_id, needs_acceptance, terms_version}` | signed in |
+
+- `POST /login` and `POST /register` now also need the form field `agree_terms`, and record acceptance.
+- Any other request from a user who hasn't accepted `legal.VERSION` answers `403 {"error": "terms_required", "version"}`, or redirects pages to `/accept-terms`.
+- Facts for the legal pages come from `docs/data-inventory.md`. Open decisions are in `docs/legal-open-items.md`, and the reviewer's list is in `docs/legal-review-checklist.md`.

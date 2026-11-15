@@ -6,6 +6,30 @@ commit, so it can be undone on its own with `git revert <commit>`.
 (An earlier version of this file was removed from `main` in 93910d9. The changes it
 listed are in git history: a610551, f7bd510, a0b0b3d, 2b46eca and 4120c14.)
 
+## SCHEMA + SECURITY-RELEVANT: terms acceptance (8d7efd0, tests 36c0d73)
+
+- **Files:** `models.py` (new `TermsAcceptance`); new `legal.py`; `moderation.py` (`ALWAYS_OPEN_ENDPOINTS`: legal pages open even to banned users); `profiles.py` (registers `legal` after `moderation`).
+- **Schema (additive):** new table `terms_acceptances` (`acceptance_id`, `user_id`, `version`, `accepted_at`), one row per acceptance, created by `db.create_all()`. Nothing existing is changed.
+- **What changed (tightens access):**
+  - `legal.VERSION` is the single required version (one combined version for both documents).
+  - A signed-in user without it gets the acceptance screen, or `403 {"error": "terms_required", "version"}` from APIs. This applies everywhere except sign-out, `/terms`, `/privacy`, `/accept-terms`, `/api/terms/accept` and `/api/session`.
+  - `POST /login` and `POST /register` answer **400** without the `agree_terms` box, and record acceptance when it's ticked.
+  - Existing users have no record, so they're asked on their next request.
+- **New endpoints:**
+  - `GET /terms`, `GET /privacy` (public);
+  - `GET`/`POST /accept-terms`;
+  - `POST /api/terms/accept` (JSON `{agree: true, version}`);
+  - `GET /api/session` (`{user_id, needs_acceptance, terms_version}`).
+- **Why:** clickwrap acceptance of the Terms and the data information, recorded on the server.
+- **Tested:** `tests/test_legal.py`:
+  - the box is required;
+  - acceptance is recorded with version and time;
+  - terms_required everywhere else, and acceptance clears it;
+  - a new version asks again;
+  - legal pages work signed out and while banned;
+  - footer links appear on every kind of page.
+- **Undo:** `git revert 36c0d73 8d7efd0`, and the legal-pages frontend commit. The table can stay or be dropped by hand.
+
 ## SCHEMA: trust and safety tables and soft-delete columns (84bd248)
 
 - **New tables** (created by `db.create_all()`; additive):

@@ -47,6 +47,8 @@ What is enforced now, on the server, for every request:
 
 | Method | Path | Who |
 |---|---|---|
+| GET | `/terms`, `/privacy` | Everyone, including banned users |
+| GET, POST | `/accept-terms`; POST `/api/terms/accept`; GET `/api/session` | Signed in (allowed before accepting the terms) |
 | GET | `/` | Signed in and not banned |
 | GET | `/account` | Signed in and not banned |
 | POST | `/api/blocks` | Signed in and not banned |
@@ -89,7 +91,7 @@ What is enforced now, on the server, for every request:
 | GET | `/u/<int:user_id>/edit` | Signed in and not banned |
 | POST | `/update-account` | Signed in and not banned |
 
-Moderator endpoints answer **404** to everyone else, as if they didn't exist.
+Moderator endpoints answer **404** to everyone else, as if they didn't exist. Signed-in users who haven't accepted the current terms version (`legal.py`) can reach only sign-out, the legal pages and acceptance until they do.
 
 ## Blocking
 
