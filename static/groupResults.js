@@ -62,7 +62,27 @@
 		return out;
 	}
 
-	const api = { groupByCategory, flattenTagGroups };
+	// Put category-name matches first ("science" -> the Science box with ALL its
+	// interests), then the ranked boxes. categoryBoxes: [{ category, match, interests }]
+	// in the backend's order (exact, alias, prefix). An interest shown in a category
+	// box is left out of the ranked boxes, so it appears exactly once; ranked boxes
+	// left empty are dropped. Category boxes are kept even when empty, so the page
+	// can offer to create the first interest there.
+	function withCategoryMatches(categoryBoxes, rankedBoxes) {
+		const shown = new Set();
+		const first = categoryBoxes.map((b) => {
+			b.interests.forEach((i) => shown.add(i.id));
+			return { category: b.category, match: b.match, isCategoryMatch: true, interests: b.interests };
+		});
+		const firstKeys = new Set(first.map((b) => b.category));
+		const rest = rankedBoxes
+			.filter((b) => !firstKeys.has(b.category))
+			.map((b) => ({ ...b, interests: b.interests.filter((i) => !shown.has(i.id)) }))
+			.filter((b) => b.interests.length);
+		return [...first, ...rest];
+	}
+
+	const api = { groupByCategory, flattenTagGroups, withCategoryMatches };
 	if (typeof module !== "undefined" && module.exports) module.exports = api;
 	else root.GroupResults = api;
 })(this);

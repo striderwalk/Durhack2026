@@ -3,7 +3,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { groupByCategory, flattenTagGroups } = require("../static/groupResults.js");
+const { groupByCategory, flattenTagGroups, withCategoryMatches } = require("../static/groupResults.js");
 
 const r = (id, name, category, score) => ({ id, name, url: `/interests/${id}`, category, score });
 
@@ -68,4 +68,40 @@ test("uses each interest's own category and score when the backend sends them", 
 	const boxes = groupByCategory(flattenTagGroups(tagGroups, categoryOf));
 	assert.deepEqual(boxes.map((b) => b.category), ["technology", "arts", "other"]);
 	assert.equal(boxes[0].interests[0].name, "3D Printing");
+});
+
+test("category-name matches come first, in the backend's order", () => {
+	const ranked = groupByCategory([r(1, "Chemistry Club", "science", 3), r(2, "Rowing", "sport", 5)]);
+	const named = [
+		{ category: "science", match: "exact", interests: [r(1, "Chemistry Club", "science"), r(3, "Physics", "science")] },
+		{ category: "music", match: "prefix", interests: [r(4, "Choir", "music")] },
+	];
+	const boxes = withCategoryMatches(named, ranked);
+	assert.deepEqual(boxes.map((b) => b.category), ["science", "music", "sport"]);
+	assert.equal(boxes[0].isCategoryMatch, true);
+	assert.equal(boxes[2].isCategoryMatch, undefined);
+});
+
+test("an interest in a category-match box is never repeated in another box", () => {
+	// Interest 1 is in the Science category box AND scored in a ranked Recreation box
+	const ranked = groupByCategory([r(1, "Stargazing", "recreation", 4), r(5, "Hiking", "recreation", 2)]);
+	const boxes = withCategoryMatches([{ category: "science", match: "exact", interests: [r(1, "Stargazing", "science")] }], ranked);
+	const ids = boxes.flatMap((b) => b.interests.map((i) => i.id));
+	assert.deepEqual(ids.sort(), [1, 5]);
+	assert.deepEqual(boxes.map((b) => b.category), ["science", "recreation"]);
+});
+
+test("ranked boxes left empty are dropped; empty category-match boxes stay", () => {
+	const ranked = groupByCategory([r(1, "Stargazing", "recreation", 4)]);
+	const boxes = withCategoryMatches([
+		{ category: "science", match: "exact", interests: [r(1, "Stargazing", "science")] },
+		{ category: "practical", match: "prefix", interests: [] },
+	], ranked);
+	assert.deepEqual(boxes.map((b) => b.category), ["science", "practical"]);
+	assert.equal(boxes[1].interests.length, 0);
+});
+
+test("no category match: the ranked boxes are unchanged", () => {
+	const ranked = groupByCategory([r(1, "Chess", "recreation", 1)]);
+	assert.deepEqual(withCategoryMatches([], ranked), ranked);
 });
