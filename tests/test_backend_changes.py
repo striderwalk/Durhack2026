@@ -69,6 +69,7 @@ class BackendChangesTest(unittest.TestCase):
 			self.assertIsNone(Interest.query.filter_by(interest_name="Backend Test Interest").first())
 
 	def test_search_results_include_category_and_score(self):
+		self.client.post("/login", data={"identifier": "alex", "password": "password123"})  # search needs sign-in
 		data = self.client.get("/api/discover?q=print").get_json()
 		items = [i for g in data["groups"] for i in g["interests"]]
 		self.assertTrue(items)

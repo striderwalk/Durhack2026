@@ -13,14 +13,14 @@
 	<p><strong>Email:</strong> <span id="display-email">{{ current_user.email }}</span></p>
 	<p><strong>Interests:</strong> <span id="interest-list">
 
-      {% for i in current_user.user_interests %}
+      {% for i in current_user.user_interests %}{% if i.interest and not i.interest.removed_at %}
       <a> {{i.interest.interest_name}}, </a>
-      {% endfor %}
+      {% endif %}{% endfor %}
     </span>
   </p>
   <p><strong>Interest Categories:</strong> <span id="interest-categories">
       {% for i in current_user.user_interests %}
-        {% if i.interest.category %}
+        {% if i.interest and not i.interest.removed_at and i.interest.category %}
           <a>{{ i.interest.category.category_name }}, </a>
         {% endif %}
       {% endfor %}

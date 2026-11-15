@@ -1,0 +1,41 @@
+{# Small pieces shared by the moderator pages #}
+
+{# How long ago, from an ISO time (filled in by static/mod.js; the date shows without it) #}
+{% macro age(iso) -%}
+<time class="mod-age" datetime="{{ iso }}">{{ iso[:16] | replace("T", " ") }} UTC</time>
+{%- endmacro %}
+
+{# A user as moderators see them: name, link, ban status. Never the email or CIS code. #}
+{% macro user_link(u) -%}
+{% if u %}<a href="{{ url_for('moderation.mod_user', user_id=u.id) }}">{{ u.display_name }}</a> <span class="mod-meta">#{{ u.id }}</span>
+{% if u.banned %}<span class="mod-badge danger">{{ "Banned until " ~ u.ban_expires_at[:10] if u.ban_expires_at else "Banned" }}</span>{% endif %}
+{% else %}<span class="mod-meta">(none)</span>{% endif %}
+{%- endmacro %}
+
+{# The thing a flag is about #}
+{% macro target(f) -%}
+{% if f.target_type == "user" %}User: {{ user_link(f.target) }}
+{% elif f.target %}Interest: <a href="{{ url_for('moderation.mod_flag', flag_id=f.id) }}">{{ f.target.name }}</a>
+{% if f.target.removed %}<span class="mod-badge danger">Removed</span>{% endif %}
+{% else %}<span class="mod-meta">(deleted)</span>{% endif %}
+{%- endmacro %}
+
+{# Ban form: 1 day / 7 days (default) / 30 days / permanent, with a reason #}
+{% macro ban_form(user_id, ban_days, default_days) -%}
+<form data-mod-action="{{ url_for('moderation.api_ban_user', user_id=user_id) }}" data-confirm="Ban this user? They'll be signed out straight away.">
+	<h3>Ban user</h3>
+	<fieldset>
+		<legend class="visually-hidden">Ban length</legend>
+		{% for value, label in [("1", "1 day"), ("7", "7 days"), ("30", "30 days"), ("permanent", "Permanent")] %}
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="duration" id="ban-{{ user_id }}-{{ value }}" value="{{ value }}" {% if value == default_days %}checked{% endif %}>
+			<label class="form-check-label" for="ban-{{ user_id }}-{{ value }}">{{ label }}</label>
+		</div>
+		{% endfor %}
+	</fieldset>
+	<label class="form-label" for="ban-reason-{{ user_id }}">Reason (required)</label>
+	<input class="form-control" id="ban-reason-{{ user_id }}" name="reason" maxlength="500" required>
+	<p class="safety-error" role="alert"></p>
+	<button type="submit" class="btn btn-danger">Ban user</button>
+</form>
+{%- endmacro %}

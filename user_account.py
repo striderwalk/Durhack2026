@@ -36,7 +36,10 @@ def update_user_account(
     for name in _parse_interest_names(new_interests):
         interest = db.session.scalar(
             select(Interest).where(func.lower(Interest.interest_name) == name.lower())
+            .execution_options(include_removed=True)
         )
+        if interest is not None and interest.removed_at is not None:
+            continue  # removed by a moderator: can't be added or re-created
         if interest is None:
             interest = Interest(
                 interest_name=to_interest_title_case(name),  # same rules as the create form

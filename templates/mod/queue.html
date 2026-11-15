@@ -1,0 +1,32 @@
+{# ModQueue: open or resolved reports, newest first #}
+{% extends "mod/_layout.html" %}
+{% from "mod/_macros.html" import age, user_link, target %}
+{% set tab = "queue" %}
+{% block title %}Moderation{% endblock %}
+
+{% block mod %}
+<nav aria-label="Report status">
+	<ul class="mod-nav">
+		<li><a href="{{ url_for('moderation.mod_queue') }}" {% if status == 'open' %}aria-current="page"{% endif %}>Open</a></li>
+		<li><a href="{{ url_for('moderation.mod_queue', status='resolved') }}" {% if status == 'resolved' %}aria-current="page"{% endif %}>Resolved</a></li>
+	</ul>
+</nav>
+
+{% if flags %}
+<ul class="mod-list">
+	{% for f in flags %}
+	<li class="mod-card">
+		<h2><a href="{{ url_for('moderation.mod_flag', flag_id=f.id) }}">Report #{{ f.id }}</a>
+			<span class="mod-badge">{{ f.reason }}</span>
+			{% if f.status != "open" %}<span class="mod-badge">{{ f.status }}</span>{% endif %}</h2>
+		<p class="mb-1">{{ target(f) }}</p>
+		{% if f.target_type == "interest" %}<p class="mb-1">Creator: {{ user_link(f.linked_user) }}</p>{% endif %}
+		{% if f.message %}<p class="mb-1">“{{ f.message }}”</p>{% endif %}
+		<p class="mod-meta mb-0">Reported {{ age(f.created_at) }}</p>
+	</li>
+	{% endfor %}
+</ul>
+{% else %}
+<p class="mod-meta">{{ "No open reports." if status == "open" else "No resolved reports yet." }}</p>
+{% endif %}
+{% endblock %}

@@ -6,6 +6,38 @@ commit, so it can be undone on its own with `git revert <commit>`.
 (An earlier version of this file was removed from `main` in 93910d9. The changes it
 listed are in git history: a610551, f7bd510, a0b0b3d, 2b46eca and 4120c14.)
 
+## SCHEMA: trust and safety tables and soft-delete columns (84bd248)
+
+- **New tables** (created by `db.create_all()`; additive):
+  - `blocks`: unique pair, `CHECK (blocker_id <> blocked_id)`;
+  - `flags`: partial unique index for one OPEN flag per reporter per target;
+  - `user_bans`: user id **and** a sha256 of the email, with no foreign key, so a ban outlives the account;
+  - `mod_actions`: the append-only audit log.
+- **New nullable columns** on `interests`: `removed_at`, `removed_by`, `removal_reason` (soft delete).
+  - New `migrations.py` adds them to existing databases at start-up with `ALTER TABLE … ADD COLUMN`, only when missing.
+  - No column is dropped, renamed or retyped, and no data is changed.
+- `Interest.creator` and `User.created_interests` now name their foreign key, because `interests` now has two user keys. Behaviour is unchanged.
+- **Undo:** `git revert 84bd248`. The new tables and columns can stay, or be dropped by hand.
+
+## SECURITY-RELEVANT: sign-in gate, bans, blocks, reports, moderators (796d583, tests a2c31c4)
+
+- **Files:** new `moderation.py`; `profiles.py` (registers it); `profile_api.py` and `interest_api.py` (blocks enforced, removed interests skipped); `user_account.py` (won't add or re-create a removed interest).
+- **Gate on every request (tightens access):**
+  - signed-out users can reach only sign-in, registration and log-out; APIs answer **401**;
+  - banned users are signed out, and see the ban screen or get **403 banned**;
+  - 10 failed sign-ins per address or IP in 15 minutes give **429**.
+- **Effect on existing behaviour:** the homepage, search and tag APIs are **no longer public**.
+- **Blocks:** mutual in effect. Profiles and connection pages answer 404, people lists leave the users out, and connections and pending waves between them are deleted.
+- **Reports:** for users and interests, with limits. The reporter is never shown to the reported user.
+- **Moderators:** `MODERATOR_EMAILS`, checked on every call; everyone else gets **404**.
+  - Moderators can't ban themselves or another moderator.
+  - Every action writes `mod_actions`.
+  - Emails show only on a user's detail page, on request, and that view is logged.
+- **Removed interests:** hidden from every ORM query, through one session hook in `moderation.py`, except moderator views.
+- **Privacy:** contact withholding and the "CIS codes and emails never returned to other users" rule are unchanged. Moderator lists contain no email, CIS code or password.
+- **Tested:** `tests/test_moderation.py` (16 tests).
+- **Undo:** `git revert a2c31c4 796d583`. The pages that use these then stop working, so revert the frontend commits too.
+
 ## Search: category names (`/api/discover`)
 
 - **Files:**
@@ -98,6 +130,11 @@ listed are in git history: a610551, f7bd510, a0b0b3d, 2b46eca and 4120c14.)
 
 | Gap | Proposal |
 |---|---|
+| **Sign-in by one-time code** | The brief describes one-time codes (single-use, 10-minute expiry, hashed, rate-limited per address and IP) with no passwords. The app still uses passwords. Replacing that is an auth redesign: not done. |
+| **Email verification and staff** | There's no "verified" flag and no way to tell staff from students, so "verified Durham students only" can't be enforced yet. |
+| **Login limits are in memory** | Fine for one dev server; production needs a shared store, such as a table or Redis. |
+| **CSRF tokens** | The new endpoints require JSON bodies, which stops plain cross-site form posts. Full CSRF protection is still missing site-wide. |
+| **Retention** | How long flags, bans and audit rows are kept isn't decided. See `docs/moderation.md`. |
 | **Category-match rules not yet agreed** | Prefix matching and the alias list (`colours.CATEGORY_ALIASES`) are a proposal; see `docs/search-ranking-spec.md`, "Category match". |
 | **No wave / connection-request endpoint exists** | Waves are front-end placeholders (`sendWave` / `acceptWave` in `static/profile.js` send nothing). So there was no server check to add for "you can't wave to yourself". When the endpoint is built: reject `sender == target` with **400 "You can't wave to yourself"**, and make "accept wave" refuse a pending row whose requester and addressee are the same. |
 | **Proposed CHECK constraint (Peter)** | `ALTER TABLE connections ADD CONSTRAINT no_self_connection CHECK (requester_id <> addressee_id);` — not added here, since it's a schema change. |

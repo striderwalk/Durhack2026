@@ -48,6 +48,7 @@ class CategorySearchTest(unittest.TestCase):
 	def setUp(self):
 		from app import app
 		self.client = app.test_client()
+		self.client.post("/login", data={"identifier": "alex", "password": "password123"})  # search needs sign-in
 
 	def test_category_name_returns_all_its_interests(self):
 		import home_api

@@ -190,6 +190,9 @@ def init_app(app):
 	# Site-wide 404/500 pages in the shared layout (site_pages.py)
 	import site_pages
 	site_pages.init_app(app)
+	# Trust and safety: sign-in gate, bans, blocks, reports, moderators (moderation.py)
+	import moderation
+	moderation.init_app(app)
 
 
 # Add to profiles.py

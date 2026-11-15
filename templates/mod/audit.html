@@ -1,0 +1,36 @@
+{# ModAudit: every moderator action, newest first. Read-only. #}
+{% extends "mod/_layout.html" %}
+{% from "mod/_macros.html" import age, user_link %}
+{% set tab = "audit" %}
+{% block title %}Moderation · Audit log{% endblock %}
+
+{% block mod %}
+<form class="mod-card d-flex gap-2 flex-wrap align-items-end" method="get">
+	<div>
+		<label class="form-label" for="audit-action">Action</label>
+		<select class="form-select" id="audit-action" name="action">
+			<option value="">All actions</option>
+			{% for a in actions %}<option value="{{ a }}" {% if a == action %}selected{% endif %}>{{ a }}</option>{% endfor %}
+		</select>
+	</div>
+	<button class="btn btn-primary" type="submit">Filter</button>
+</form>
+{% if entries %}
+<div class="mod-card mod-table-wrap">
+	<table class="mod-table">
+		<thead><tr><th scope="col">When</th><th scope="col">Moderator</th><th scope="col">Action</th><th scope="col">Target</th><th scope="col">Details</th></tr></thead>
+		<tbody>
+			{% for e in entries %}
+			<tr>
+				<td>{{ age(e.created_at) }}</td>
+				<td>{{ user_link(e.moderator) }}</td>
+				<td>{{ e.action }}</td>
+				<td>{{ e.target_type }} #{{ e.target_id }}</td>
+				<td>{% for k, v in e.details.items() %}{{ k }}: {{ v }}{% if not loop.last %}; {% endif %}{% endfor %}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% else %}<p class="mod-meta">No actions yet.</p>{% endif %}
+{% endblock %}
