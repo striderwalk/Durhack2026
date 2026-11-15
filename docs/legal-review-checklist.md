@@ -41,7 +41,7 @@ pages are in `docs/data-inventory.md`; open decisions are in `docs/legal-open-it
 
 - [ ] Permission to use "Durham" in the name. The "not affiliated" wording.
 - [ ] The minimum age (18+ proposed). How it's checked. What happens for under-18 students.
-- [ ] How student status is verified. Staff exclusion: the current code checks only `@durham.ac.uk` and doesn't verify ownership.
+- [ ] How student status is verified. Staff exclusion: sign-up accepts only student-style `@durham.ac.uk` addresses (no dot before the `@`) and doesn't verify ownership; email-code verification is planned.
 
 ## Terms
 

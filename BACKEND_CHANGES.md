@@ -6,6 +6,24 @@ commit, so it can be undone on its own with `git revert <commit>`.
 (An earlier version of this file was removed from `main` in 93910d9. The changes it
 listed are in git history: a610551, f7bd510, a0b0b3d, 2b46eca and 4120c14.)
 
+
+## SECURITY-RELEVANT: sign-up only for student-style @durham.ac.uk addresses (b7936ef)
+
+- **File:** `app.py`, `register()`.
+- **What changed:**
+  - Sign-up now refuses any address that isn't exactly `…@durham.ac.uk` with **no dot before the `@`**, because staff addresses are `firstname.lastname@`.
+  - Look-alike domains and sub-domains are refused too.
+  - The message is generic: "Please use your student @durham.ac.uk address."
+- **Not changed:** login for existing accounts, including any staff-style ones.
+- **This restricts sign-up but does NOT verify that the person owns the inbox.** Email-code verification is planned.
+- **Rule source:** there was no student-format rule in the code or docs, so this uses the no-dots rule. NEEDS INPUT: confirm it matches Durham's real formats.
+- **Schema:** none.
+- **Tested:** `tests/test_backend_changes.py`:
+  - staff-style addresses, look-alike domains and sub-domains are refused;
+  - a capitalised student address is accepted;
+  - an existing staff-style account still signs in.
+- **Undo:** `git revert b7936ef`.
+
 ## SCHEMA + SECURITY-RELEVANT: terms acceptance (8d7efd0, tests 36c0d73)
 
 - **Files:** `models.py` (new `TermsAcceptance`); new `legal.py`; `moderation.py` (`ALWAYS_OPEN_ENDPOINTS`: legal pages open even to banned users); `profiles.py` (registers `legal` after `moderation`).
