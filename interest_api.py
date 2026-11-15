@@ -38,6 +38,7 @@ A user card has ONLY these fields (privacy: nothing else is ever loaded):
 from sqlalchemy import func, or_, select
 
 import discovery
+import moderation
 from colours import category_slug, category_style
 from models import Connection, Interest, User, UserInterest, db
 from profile_api import FALLBACK_NAME, fallback_avatar
@@ -53,7 +54,7 @@ class InterestNotFound(Exception):
 
 def get_interest(interest_id, viewer):
 	interest = db.session.get(Interest, interest_id)
-	if interest is None:
+	if interest is None or interest.removed_at is not None:  # removed by a moderator: 404
 		raise InterestNotFound(interest_id)
 
 	data = to_interest(interest)
@@ -96,12 +97,13 @@ def get_people(interest_id, viewer, page=1, cumulative=False):
 	start = 0 if cumulative else (page - 1) * PAGE_SIZE
 	wanted = page * PAGE_SIZE - start
 
-	# Only the columns a card may show. The viewer is left out here, on the
-	# server (TODO(backend): the backend should do this, and skip opted-out users).
+	# Only the columns a card may show. The viewer, and anyone blocked either way,
+	# are left out here, on the server (TODO(backend): skip opted-out users).
+	hidden = moderation.blocked_ids(viewer.user_id) | {viewer.user_id}
 	rows = db.session.execute(
 		select(User.user_id, User.display_name, User.year, User.show_year, User.avatar_colour)
 		.join(UserInterest, UserInterest.user_id == User.user_id)
-		.where(UserInterest.interest_id == interest_id, User.user_id != viewer.user_id)
+		.where(UserInterest.interest_id == interest_id, User.user_id.not_in(hidden))
 		.order_by(UserInterest.added_at.desc(), User.user_id)
 		.offset(start)
 		.limit(wanted + 1)  # one extra tells us whether there's another page

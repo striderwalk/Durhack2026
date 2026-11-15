@@ -7,6 +7,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='interest.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='safety.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -54,6 +55,10 @@
 			{% if i.category %}<span class="category-label">{{ i.category }}</span>{% else %}<span class="category-label">Uncategorised</span>{% endif %}
 		</p>
 		<p class="interest-toggle-status" id="interest-toggle-status" role="status"></p>
+		{# Report: anyone but the creator. The server refuses your own interest anyway. #}
+		{% if not i.viewer_is_creator %}
+		<button type="button" class="report-link" data-open-dialog="report-dialog">Report this interest</button>
+		{% endif %}
 
 		{% if i.description %}<p class="interest-description">{{ i.description }}</p>{% endif %}
 
@@ -65,6 +70,10 @@
 		</ul>
 		{% endif %}
 	</header>
+	{% if not i.viewer_is_creator %}
+	{% import "safety/_dialogs.html" as safety %}
+	{{ safety.report_dialog("interest", i.id, i.name) }}
+	{% endif %}
 
 	{% if i.related %}
 	<section class="interest-related" aria-labelledby="related-title">
@@ -113,4 +122,5 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='profile.js') }}"></script>
 <script src="{{ url_for('static', filename='interest.js') }}"></script>
+<script src="{{ url_for('static', filename='safety.js') }}"></script>
 {% endblock %}

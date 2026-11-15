@@ -1,0 +1,26 @@
+{# AcceptTerms: shown to a signed-in user who hasn't accepted the current version
+   (existing users, or after the terms change). Everything else waits until they do. #}
+{% extends "base.html" %}
+{% from "legal/_agree.html" import agree_box %}
+
+{% block title %}Accept the terms{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center py-5">
+	<div class="card" style="width: 100%; max-width: 520px;">
+		<div class="card-body">
+			<h1 class="h4 mb-3">Before you continue</h1>
+			<p class="text-muted">Please read and accept the Terms and Conditions and the Information on Data and Security
+				(version {{ LEGAL.version }}, updated {{ LEGAL.last_updated }}).</p>
+			<form method="post" action="{{ url_for('legal.accept_form') }}">
+				<input type="hidden" name="next" value="{{ next }}">
+				{{ agree_box(terms_error) }}
+				<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+					<a href="{{ url_for('logout') }}">Sign out instead</a>
+					<button type="submit" class="btn btn-primary">Continue</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

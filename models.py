@@ -39,7 +39,7 @@ class User(UserMixin, db.Model):
 		"UserInterest", back_populates="user", cascade="all, delete-orphan"
 	)
 	created_interests = db.relationship(
-		"Interest", back_populates="creator"
+		"Interest", back_populates="creator", foreign_keys="Interest.created_by_user_id"
 	)
 	administered_rooms = db.relationship(
 		"ChatRoom", back_populates="admin"
@@ -162,11 +162,16 @@ class Interest(db.Model):
 		db.Integer, db.ForeignKey("users.user_id"), nullable=True
 	)
 	created_at = db.Column(db.DateTime, default=utc_now, nullable=False)
+	# Soft delete by a moderator (never a hard delete). Removed interests are hidden
+	# everywhere except the moderator panel (see moderation.py). Added by migrations.py.
+	removed_at = db.Column(db.DateTime, nullable=True)
+	removed_by = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
+	removal_reason = db.Column(db.String(500), nullable=True)
 
 	tags = db.relationship(
 		"Tag", secondary=interest_tags, back_populates="interests", order_by="Tag.tag_name"
 	)
-	creator = db.relationship("User", back_populates="created_interests")
+	creator = db.relationship("User", back_populates="created_interests", foreign_keys=[created_by_user_id])
 	user_interests = db.relationship(
 		"UserInterest", back_populates="interest", cascade="all, delete-orphan"
 	)
@@ -314,3 +319,87 @@ class UserContact(db.Model):
 	value = db.Column(db.String(200), nullable=False)
 	label = db.Column(db.String(24), nullable=True)  # only for type "other"
 	position = db.Column(db.Integer, default=0, nullable=False)
+
+
+
+# ---------- Trust and safety (moderation.py). New tables only. ----------
+
+class Block(db.Model):
+	"""blocker_id has blocked blocked_id. Mutual in effect; the blocked user isn't told."""
+	__tablename__ = "blocks"
+	__table_args__ = (
+		db.UniqueConstraint("blocker_id", "blocked_id", name="uq_block_pair"),
+		db.CheckConstraint("blocker_id <> blocked_id", name="ck_no_self_block"),
+	)
+
+	block_id = db.Column(db.Integer, primary_key=True)
+	blocker_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False, index=True)
+	blocked_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False, index=True)
+	created_at = db.Column(db.DateTime, default=utc_now, nullable=False)
+
+
+class Flag(db.Model):
+	"""A report of a user or an interest, for moderators. Reporters are never shown to the reported."""
+	__tablename__ = "flags"
+	__table_args__ = (
+		# One OPEN flag per reporter per target (closed ones don't count)
+		db.Index(
+			"uq_open_flag", "reporter_id", "target_type", "target_id", unique=True,
+			sqlite_where=db.text("status = 'open'"), postgresql_where=db.text("status = 'open'"),
+		),
+	)
+
+	flag_id = db.Column(db.Integer, primary_key=True)
+	reporter_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False, index=True)
+	target_type = db.Column(db.String(10), nullable=False)  # "user" | "interest"
+	target_id = db.Column(db.Integer, nullable=False)
+	linked_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)  # an interest's creator
+	reason = db.Column(db.String(20), nullable=False)  # spam | harassment | inappropriate | impersonation | other
+	message = db.Column(db.String(500), nullable=True)
+	status = db.Column(db.String(10), default="open", nullable=False)  # open | actioned | dismissed
+	created_at = db.Column(db.DateTime, default=utc_now, nullable=False)
+	resolved_by = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
+	resolved_at = db.Column(db.DateTime, nullable=True)
+	resolution_note = db.Column(db.String(500), nullable=True)
+
+
+class UserBan(db.Model):
+	"""
+	A ban. Kept when an account is deleted: email_hash (sha256 of the lower-case
+	verified email) means re-registering with the same address stays banned.
+	"""
+	__tablename__ = "user_bans"
+
+	ban_id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, nullable=True, index=True)  # no FK: outlives the account
+	email_hash = db.Column(db.String(64), nullable=False, index=True)
+	ban_type = db.Column(db.String(10), nullable=False)  # temporary | permanent
+	expires_at = db.Column(db.DateTime, nullable=True)  # NULL when permanent
+	reason = db.Column(db.String(500), nullable=False)
+	created_by = db.Column(db.Integer, nullable=False)
+	created_at = db.Column(db.DateTime, default=utc_now, nullable=False)
+	lifted_at = db.Column(db.DateTime, nullable=True)
+	lifted_by = db.Column(db.Integer, nullable=True)
+
+
+class ModAction(db.Model):
+	"""Append-only audit log of moderator actions. Nothing updates or deletes rows."""
+	__tablename__ = "mod_actions"
+
+	action_id = db.Column(db.Integer, primary_key=True)
+	moderator_id = db.Column(db.Integer, nullable=False, index=True)
+	action = db.Column(db.String(40), nullable=False)
+	target_type = db.Column(db.String(10), nullable=False)
+	target_id = db.Column(db.Integer, nullable=False)
+	details = db.Column(db.Text, default="")
+	created_at = db.Column(db.DateTime, default=utc_now, nullable=False)
+
+
+class TermsAcceptance(db.Model):
+	"""A user accepted the Terms and the data information at this version (legal.py)."""
+	__tablename__ = "terms_acceptances"
+
+	acceptance_id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False, index=True)
+	version = db.Column(db.String(20), nullable=False)  # one combined version for both documents
+	accepted_at = db.Column(db.DateTime, default=utc_now, nullable=False)

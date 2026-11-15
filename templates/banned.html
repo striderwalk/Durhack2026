@@ -1,0 +1,23 @@
+{# BanScreen: shown instead of any page while an account is banned (moderation.gate).
+   The session has already been ended, so no other page can be reached. #}
+{% extends "base.html" %}
+
+{% block title %}Account suspended{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+	<div class="card mx-auto" style="max-width: 520px;">
+		<div class="card-body">
+			<h1 class="h4 mb-3">Your account is suspended</h1>
+			{% if ban.ban_type == "permanent" %}
+			<p>This Durham Superposition account has been permanently banned by a moderator.</p>
+			{% else %}
+			<p>This Durham Superposition account is suspended until
+				<strong><time datetime="{{ ban.expires_at.isoformat() }}Z">{{ ban.expires_at.strftime("%-d %B %Y at %H:%M") }} UTC</time></strong>.
+				You can sign in again after that.</p>
+			{% endif %}
+			<p class="mb-0">{{ contact }}</p>
+		</div>
+	</div>
+</div>
+{% endblock %}

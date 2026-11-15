@@ -57,3 +57,43 @@ Plain substring matching misses things, and pure semantic search (pgvector, if t
 - `flattenTagGroups()` gives each interest its tag group's category, and a score from its position in the response.
 - It can put an interest in the wrong category box, and it can't rank name matches above tag matches by itself.
 - Once the backend sends the shape above, delete `flattenTagGroups()` and pass the response (mapped in `home.js` `runSearch()`) straight to `groupByCategory()`.
+
+## Category match (implemented in `4bd9b72`; rules NOT YET AGREED)
+
+When the query names one of the 10 display categories, that category's interests are shown even if no name or tag contains the word. For example, "science" shows Astrophotography, Observational Astronomy and the rest.
+
+**Matching** (`colours.match_categories`). Normalise the query: trim, lowercase, collapse spaces. A category matches by:
+
+1. **exact** name: "science", "SPORT", " music ";
+2. **alias** (exact): words in `colours.CATEGORY_ALIASES`:
+   - mathematics: maths, math
+   - technology: tech
+   - arts: art
+   - sport: sports
+   - science: sciences
+   - humanities: humanity
+
+   To extend it, add lowercase words to a list. The page receives the same list.
+3. **prefix** of the name, only for queries of 3 or more characters: "mus" → Music. "s" or "sc" never prefix-match.
+
+More than one category can match. They're ordered exact, then alias, then prefix.
+
+**Response** (`/api/discover`, added alongside the unchanged `groups`):
+
+```json
+"categoryMatches": [
+  { "category": "science", "name": "Science", "match": "exact", "match_type": "category",
+    "interests": [{ "id": 4, "name": "Space Exploration Society", "url": "/interests/4", "category": "Science and the natural world" }] }
+]
+```
+
+- Each match lists **all** interests in that category: those whose main category maps to it through `colours.CATEGORY_GROUP`.
+- They're sorted by how many students have each interest (most first), then A–Z.
+
+**Page:**
+- Category-match boxes come first, in the order above, with a small "Category" label.
+- They show 8 interests plus "Show all N", which expands in place.
+- The normal ranked boxes follow. Any interest already in a category box is removed from them, so each interest appears once (`GroupResults.withCategoryMatches`).
+- A named category with no interests shows "No interests here yet. Create a new interest".
+
+**For the team to decide:** whether prefix matching is wanted at all, which aliases to keep, and whether category matches should also feed the ranking score.

@@ -20,7 +20,9 @@ from colours import GROUPS
 
 class HomePageTest(unittest.TestCase):
 	def setUp(self):
+		# Every page now needs a signed-in user (moderation.gate)
 		self.client = app.test_client()
+		self.client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})
 
 	def test_category_cards_are_the_ten_groups_in_order(self):
 		html = self.client.get("/").get_data(as_text=True)

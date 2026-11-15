@@ -9,6 +9,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='safety.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -106,7 +107,24 @@
 		</div>
 	</form>
 
-	{# 4. Danger zone #}
+	{# 4. Blocked users: people you blocked (never who blocked you). Unblock via DELETE /api/blocks/<id>. #}
+	<section class="settings-section" aria-labelledby="blocked-title">
+		<h2 id="blocked-title">Blocked users</h2>
+		<p class="form-text">Blocked people can't see your profile or find you on interest pages, and you won't see theirs. They aren't told.</p>
+		<ul class="blocked-list" id="blocked-list">
+			{% for b in blocked %}
+			<li>
+				<span>{{ b.display_name }}</span>
+				<button type="button" class="btn btn-sm btn-outline-secondary" data-unblock="{{ b.id }}" data-name="{{ b.display_name }}"
+					aria-label="Unblock {{ b.display_name }}">Unblock</button>
+			</li>
+			{% endfor %}
+		</ul>
+		<p class="form-text" id="blocked-empty" {% if blocked %}hidden{% endif %}>You haven't blocked anyone.</p>
+		<p class="settings-status" id="blocked-status" role="status" aria-live="polite"></p>
+	</section>
+
+	{# 5. Danger zone #}
 	<section class="settings-section danger-zone" aria-labelledby="danger-title">
 		<h2 id="danger-title">Danger zone</h2>
 		<p>Deleting your account removes your profile, bio, contact details, interests list and connections.
@@ -127,4 +145,5 @@
 <script src="{{ url_for('static', filename='contacts.js') }}"></script>
 <script src="{{ url_for('static', filename='account.js') }}"></script>
 <script src="{{ url_for('static', filename='settings.js') }}"></script>
+<script src="{{ url_for('static', filename='safety.js') }}"></script>
 {% endblock %}

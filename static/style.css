@@ -419,10 +419,67 @@ body > main {
     font-weight: 600;
 }
 
+.site-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem 1rem;
+}
+
+.site-footer-links a {
+    color: var(--muted);
+    text-decoration: underline;
+}
+
+.site-footer-links a:hover,
+.site-footer-links a:focus-visible {
+    color: var(--accent-text);
+}
+
 @media (max-width: 639.98px) {
     .site-footer {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
+}
+
+/* ---------- CategorySoft: the shared soft category colour ----------
+   Used by the home page's category boxes and the profile's interest items and
+   suggestion cards, so they can't drift apart. Set --cat to a category variable
+   (var(--cat-science) …, light and dark values from colours.py); optionally set
+   --cat-text (e.g. var(--cat-science-fg)) to colour the text, otherwise it's ink.
+   Text on these tints is AA in both themes (lowest 6.2:1). */
+.cat-soft,
+.cat-pill {
+    border: 1px solid color-mix(in srgb, var(--cat) 30%, transparent);
+    background: color-mix(in srgb, var(--cat) 15%, var(--surface));
+    color: var(--cat-text, var(--ink));
+}
+
+/* A small solid dot in the category colour (never the only sign of the category) */
+.cat-dot {
+    flex: none;
+    width: .65rem;
+    height: .65rem;
+    border-radius: 50%;
+    background: var(--cat);
+}
+
+/* A pill: one interest, linking to its page */
+.cat-pill {
+    display: inline-block;
+    max-width: 100%;
+    padding: .3rem .8rem;
+    border-radius: 1rem;
+    text-decoration: none;
+    /* Long names wrap inside the pill instead of running out of the box */
+    overflow-wrap: anywhere;
+    transition: border-color .15s, background-color .15s;
+}
+
+.cat-pill:hover,
+.cat-pill:focus-visible {
+    border-color: var(--cat);
+    background: color-mix(in srgb, var(--cat) 24%, var(--surface));
+    color: var(--cat-text, var(--ink));
 }

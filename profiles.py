@@ -27,6 +27,7 @@ bp = flask.Blueprint("profiles", __name__)
 def _template_helpers():
 	return {
 		"category_style": colours.category_style,
+		"category_vars": colours.category_vars,
 		"avatar_colour": colours.avatar_colour,
 		"contacts_json": profile_api.contacts_json,
 		"category_theme_css": colours.theme_css,
@@ -189,6 +190,13 @@ def init_app(app):
 	# Site-wide 404/500 pages in the shared layout (site_pages.py)
 	import site_pages
 	site_pages.init_app(app)
+	# Trust and safety: sign-in gate, bans, blocks, reports, moderators (moderation.py)
+	import moderation
+	moderation.init_app(app)
+	# Terms and data information, and accepting them (legal.py); after moderation,
+	# so its checks run after the sign-in and ban gate
+	import legal
+	legal.init_app(app)
 
 
 # Add to profiles.py

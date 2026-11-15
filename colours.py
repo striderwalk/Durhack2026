@@ -55,6 +55,22 @@ DARK_PILLS = {
 	"other": ("#2E2B2E", "#CDCBCA"),
 }
 
+# Other words that mean a category (exact match only), for search. Easy to extend:
+# add lowercase words to a list. Used by the server (match_categories) and sent to
+# the page with the palette. NOT YET AGREED with the team.
+CATEGORY_ALIASES = {
+	"science": ["sciences"],
+	"mathematics": ["maths", "math"],
+	"technology": ["tech"],
+	"arts": ["art"],
+	"music": [],
+	"humanities": ["humanity"],
+	"society": [],
+	"practical": [],
+	"sport": ["sports"],
+	"recreation": [],
+}
+
 # backend category slug -> group key
 CATEGORY_GROUP = {
 	"science-and-the-natural-world": "science",
@@ -92,6 +108,33 @@ def on_dark(hex_colour):
 	return f"#{r:02X}{g:02X}{b:02X}"
 
 
+def match_categories(query, names=None, aliases=None):
+	"""
+	Which categories a search query names, best first: [(group key, how)].
+	how is "exact" (the name: "science"), "alias" (a word in CATEGORY_ALIASES:
+	"maths") or "prefix" (the start of a name, 3+ characters: "mus"). Case and
+	extra spaces are ignored. names/aliases default to GROUPS/CATEGORY_ALIASES.
+	"""
+	q = " ".join((query or "").lower().split())
+	if not q:
+		return []
+	names = names or {key: group[0] for key, group in GROUPS.items()}
+	aliases = CATEGORY_ALIASES if aliases is None else aliases
+	found = {}
+	for key, name in names.items():
+		if name.lower() == q:
+			found[key] = "exact"
+	for key, words in aliases.items():
+		if key not in found and q in [w.lower() for w in words]:
+			found[key] = "alias"
+	if len(q) >= 3:
+		for key, name in names.items():
+			if key not in found and name.lower().startswith(q):
+				found[key] = "prefix"
+	order = {"exact": 0, "alias": 1, "prefix": 2}
+	return sorted(found.items(), key=lambda item: order[item[1]])
+
+
 def category_slug(category_name):
 	"""'Politics, law and society' -> 'politics-law-and-society'"""
 	return re.sub(r"[^a-z0-9]+", "-", (category_name or "").lower()).strip("-")
@@ -111,6 +154,15 @@ def group_var(group_key, part=""):
 	"""CSS variable for a group's colour: part "" (hue), "bg" or "fg". Follows the theme."""
 	key = group_key if group_key in GROUPS else "other"
 	return f"var(--cat-{key}{'-' + part if part else ''})"
+
+
+def category_vars(slug):
+	"""
+	Inline CSS that gives an element its category's soft colours (CategorySoft in
+	style.css): "--cat: var(--cat-science); --cat-text: var(--cat-science-fg)".
+	"""
+	key = group_of(slug)
+	return f"--cat: {group_var(key)}; --cat-text: {group_var(key, 'fg')}"
 
 
 def category_style(slug):

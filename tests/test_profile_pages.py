@@ -15,7 +15,7 @@ from app import app
 
 def signed_in(username):
 	client = app.test_client()
-	client.post("/login", data={"identifier": username, "password": "password123"})
+	client.post("/login", data={"identifier": username, "password": "password123", "agree_terms": "yes"})
 	return client
 
 

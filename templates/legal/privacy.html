@@ -1,0 +1,142 @@
+{# Information on Data and Security (privacy notice): a FACT-BASED DRAFT for human
+   review. Every fact here must match docs/data-inventory.md; anything not verified
+   from the code is marked [TO CONFIRM]. #}
+{% extends "legal/_page.html" %}
+{% set heading = "Information on Data and Security" %}
+{% set sections = [
+	("who", "Who is responsible"), ("what", "What we collect and who can see it"), ("why", "Why we use it"),
+	("emails", "Emails"), ("others", "Other organisations"), ("retention", "How long we keep it"),
+	("rights", "Your rights"), ("storage", "Cookies and browser storage"), ("security", "Security"),
+	("age", "Age"), ("changes", "Changes to this information")] %}
+{% block title %}Information on Data and Security{% endblock %}
+
+{% block legal %}
+<section id="who">
+	<h2>1. Who is responsible</h2>
+	<p>{{ LEGAL.operator }} is responsible for your data on Durham Superposition. Contact: {{ LEGAL.contact }}.
+		[ICO REGISTRATION, IF APPLICABLE]</p>
+</section>
+
+<section id="what">
+	<h2>2. What we collect and who can see it</h2>
+	<p>"Signed-in students" means anyone signed in to the service. "Connections" are people you have connected with.</p>
+	<div class="legal-table-wrap">
+	<table class="legal-table">
+		<caption class="visually-hidden">Data we hold, who can see it, and how long we keep it</caption>
+		<thead><tr><th scope="col">What</th><th scope="col">Who can see it</th><th scope="col">How long we keep it</th></tr></thead>
+		<tbody>
+			<tr><td>Your email address (must be @durham.ac.uk)</td><td>You. Never other users. Moderators only on a user's detail page, when they choose to view it, and each view is logged.</td><td>Until your account is deleted [TO CONFIRM]</td></tr>
+			<tr><td>Your username (used to sign in)</td><td>You only. Never shown to other users.</td><td>Until your account is deleted</td></tr>
+			<tr><td>Your password</td><td>Nobody: we store only a one-way scrambled form (a hash).</td><td>Until your account is deleted</td></tr>
+			<tr><td>Display name, avatar colour</td><td>Signed-in students</td><td>Until you change them or your account is deleted</td></tr>
+			<tr><td>Year of study</td><td>You; signed-in students only if you turn on "Show my year"</td><td>Until you change it or your account is deleted</td></tr>
+			<tr><td>Bio</td><td>Signed-in students once you publish it; only you while it's a draft</td><td>Until you change it or your account is deleted</td></tr>
+			<tr><td>Contact details (for example email, phone, Instagram, Discord)</td><td>You and your connections only. Others see none of it.</td><td>Until you remove them or your account is deleted</td></tr>
+			<tr><td>Interests on your profile</td><td>Signed-in students; interest pages list the people who have each interest (except people you have blocked or who have blocked you)</td><td>Until you remove them or your account is deleted</td></tr>
+			<tr><td>Interests you create</td><td>Signed-in students see the interest; only you and moderators see that you created it</td><td>Until removed [TO CONFIRM]</td></tr>
+			<tr><td>Connections</td><td>The two people involved; signed-in students see connection counts and lists</td><td>Until your account is deleted [TO CONFIRM]</td></tr>
+			<tr><td>People you block</td><td>You (Settings → Blocked users). The person you block isn't told.</td><td>Until you unblock them</td></tr>
+			<tr><td>Reports you make, and any message to moderators</td><td>Moderators only. The person you report is never told who reported them.</td><td>[RETENTION PERIOD TO CONFIRM]</td></tr>
+			<tr><td>Bans, including a one-way fingerprint (hash) of the banned email address</td><td>Moderators; the banned person sees the ban and its end date</td><td>Kept after an account is deleted, to stop a ban being avoided by registering again. [RETENTION PERIOD TO CONFIRM]</td></tr>
+			<tr><td>Moderator actions (audit log)</td><td>Moderators</td><td>[RETENTION PERIOD TO CONFIRM]</td></tr>
+			<tr><td>Your acceptance of these terms (version and time)</td><td>Nobody in the app; the server checks it</td><td>[RETENTION PERIOD TO CONFIRM]</td></tr>
+			<tr><td>Sign-in attempts (IP address, typed email or username)</td><td>Nobody; used to slow down repeated failed sign-ins</td><td>15 minutes, in the server's memory only</td></tr>
+		</tbody>
+	</table>
+	</div>
+	<p>Moderators cannot read private messages: the service has no messaging feature. They do not see passwords.</p>
+</section>
+
+<section id="why">
+	<h2>3. Why we use it</h2>
+	<p>Each purpose below has a proposed lawful basis under UK data protection law, for review. [TO CONFIRM ALL BASES]</p>
+	<ul>
+		<li><strong>Running your account and the matching features</strong> (your profile, interests, connections): to provide the service you asked for. Proposed basis: contract. [TO CONFIRM]</li>
+		<li><strong>Checking you're a Durham student</strong> (the @durham.ac.uk address): to keep the service for students. Proposed basis: legitimate interests. [TO CONFIRM]</li>
+		<li><strong>Safety and moderation</strong> (reports, blocks, bans, the audit log, the email fingerprint for bans): to protect users. Proposed basis: legitimate interests. [TO CONFIRM]</li>
+		<li><strong>Security</strong> (sign-in attempt limits, session cookie): to protect accounts. Proposed basis: legitimate interests. [TO CONFIRM]</li>
+		<li><strong>Recording that you accepted the terms</strong>: to show you agreed. Proposed basis: contract / legitimate interests. [TO CONFIRM]</li>
+	</ul>
+</section>
+
+<section id="emails">
+	<h2>4. Emails</h2>
+	<p>The service does not send any emails at the moment: no sign-in codes and no notifications
+		(for example about waves or interests). [TO CONFIRM: update this if sign-in codes or notifications are added]</p>
+</section>
+
+<section id="others">
+	<h2>5. Other organisations</h2>
+	<ul>
+		<li><strong>Hosting and database:</strong> [HOSTING PROVIDER AND LOCATION TO CONFIRM]</li>
+		<li><strong>jsDelivr</strong> (a content delivery network): your browser downloads the page styles and scripts (Bootstrap) from cdn.jsdelivr.net, so jsDelivr receives your IP address and browser details. We do not send it any of your data.</li>
+		<li><strong>No AI or embedding services:</strong> search matches text inside our own database. Your interests, tags and anything you write are not sent to any outside service.</li>
+		<li><strong>Links you choose to open</strong> (for example someone's Instagram) take you to those sites, under their own policies.</li>
+		<li><strong>International transfers:</strong> [TO CONFIRM, depends on the hosting provider and jsDelivr]</li>
+	</ul>
+</section>
+
+<section id="retention">
+	<h2>6. How long we keep it</h2>
+	<ul>
+		<li>Most of your data is kept until your account is deleted. The app does not yet delete accounts itself (see <a href="#rights">Your rights</a>).</li>
+		<li>If an account is banned, the ban record is kept <strong>even after the account is deleted</strong>, with a one-way fingerprint of the email address, so the ban still applies if the person registers again. [RETENTION PERIOD TO CONFIRM]</li>
+		<li>Reports, the moderator audit log and terms acceptances: [RETENTION PERIODS TO CONFIRM]</li>
+		<li>Sign-in attempt records: 15 minutes, in memory only.</li>
+	</ul>
+</section>
+
+<section id="rights">
+	<h2>7. Your rights</h2>
+	<p>You can ask to:</p>
+	<ul>
+		<li><strong>see</strong> the data we hold about you;</li>
+		<li><strong>correct</strong> it (you can change most of it yourself in your profile and Settings);</li>
+		<li><strong>delete</strong> it;</li>
+		<li><strong>object</strong> to how we use it.</li>
+	</ul>
+	<p>To make a request, contact {{ LEGAL.contact }}. The app does not yet have a "delete my account" button,
+		so deletion is done on request. [REQUEST AND DELETION PROCESS TO CONFIRM]</p>
+	<p>You can also complain to the Information Commissioner's Office (ICO) at ico.org.uk.</p>
+</section>
+
+<section id="storage">
+	<h2>8. Cookies and browser storage</h2>
+	<div class="legal-table-wrap">
+	<table class="legal-table">
+		<caption class="visually-hidden">Cookies and browser storage</caption>
+		<thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">What it's for</th></tr></thead>
+		<tbody>
+			<tr><td><code>session</code></td><td>Cookie, until you close the browser</td><td>Keeps you signed in. Essential. It includes a scrambled (hashed) form of your IP address and browser details, to help stop sessions being stolen.</td></tr>
+			<tr><td><code>superposition-theme</code></td><td>Browser storage (localStorage)</td><td>Remembers light or dark mode, only if you change it.</td></tr>
+			<tr><td><code>signin-attempt</code></td><td>Browser storage (sessionStorage), a time only</td><td>Shows "We couldn't sign you in" after a failed attempt; removed when the page next loads.</td></tr>
+		</tbody>
+	</table>
+	</div>
+	<p>We do not use analytics, advertising or tracking cookies.</p>
+</section>
+
+<section id="security">
+	<h2>9. Security</h2>
+	<p>What we do now:</p>
+	<ul>
+		<li>passwords are stored only in a one-way scrambled form;</li>
+		<li>every page needs you to be signed in, and the server (not just the page) checks who can see what;</li>
+		<li>contact details are only ever sent to your connections;</li>
+		<li>repeated failed sign-ins are slowed down;</li>
+		<li>moderators' views of email addresses are logged.</li>
+	</ul>
+	<p>No system is completely secure. If you think your account or data has been misused, contact {{ LEGAL.contact }} straight away.
+		[HTTPS AND HOSTING SECURITY TO CONFIRM]</p>
+</section>
+
+<section id="age">
+	<h2>10. Age</h2>
+	<p>The service is for adults: you must be 18 or over to use it. [MINIMUM AGE TO CONFIRM]</p>
+</section>
+
+<section id="changes">
+	<h2>11. Changes to this information</h2>
+	<p>If we change this information, the version number at the top changes and you'll be asked to accept the new version before carrying on.</p>
+</section>
+{% endblock %}

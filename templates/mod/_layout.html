@@ -1,0 +1,35 @@
+{# Moderator pages: shared frame and tabs. Only moderators get here: every /mod route
+   checks MODERATOR_EMAILS on the server (moderation.require_moderator). #}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='safety.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="mod-page">
+	<h1 class="h3">Moderation</h1>
+	<nav aria-label="Moderation sections">
+		<ul class="mod-nav">
+			<li><a href="{{ url_for('moderation.mod_queue') }}" {% if tab == 'queue' %}aria-current="page"{% endif %}>Reports</a></li>
+			<li><a href="{{ url_for('moderation.mod_users') }}" {% if tab == 'users' %}aria-current="page"{% endif %}>Users</a></li>
+			<li><a href="{{ url_for('moderation.mod_audit') }}" {% if tab == 'audit' %}aria-current="page"{% endif %}>Audit log</a></li>
+		</ul>
+	</nav>
+	{% block mod %}{% endblock %}
+
+	{# ConfirmDialog: every destructive action asks first (static/mod.js) #}
+	<dialog class="safety-dialog" id="mod-confirm" aria-labelledby="mod-confirm-title">
+		<h2 class="safety-dialog-title" id="mod-confirm-title">Are you sure?</h2>
+		<p id="mod-confirm-text"></p>
+		<div class="safety-actions">
+			<button type="button" class="btn btn-outline-secondary" data-close>Cancel</button>
+			<button type="button" class="btn btn-danger" id="mod-confirm-go">Confirm</button>
+		</div>
+	</dialog>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='mod.js') }}"></script>
+{% endblock %}

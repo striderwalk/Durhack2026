@@ -599,3 +599,48 @@ Sign in as `alex` / `password123` (seed data).
 | Escape / clear button / click outside | With an empty box | Back to resting |
 | Settings | Menu → Settings | Change name, colour or contacts → Save profile details → "Saved."; turn off "Show my year" → Save privacy; reload to confirm |
 | Profile edit | `/u/` → Edit profile → change year → Done | Saved and shown; Unpublish / Publish bio work |
+
+---
+
+# Trust and safety (moderation.py)
+
+Full rules, roles and retention are in [docs/moderation.md](moderation.md); that's also where the list of every endpoint with its access level lives. New endpoints:
+
+| Method | Path | Body / query | Answer | Who |
+|---|---|---|---|---|
+| POST | `/api/blocks` | JSON `{user_id}` | 201 `{blocked: true}`; 400 for yourself | signed in |
+| DELETE | `/api/blocks/<user_id>` | – | `{blocked: false}` | signed in |
+| GET | `/api/blocks` | – | `{blocked: [{id, display_name}]}`: people you blocked | signed in |
+| POST | `/api/flags` | JSON `{target_type: "user"\|"interest", target_id, reason, message?}` | 201 `{message}`; 400 bad input or self; 409 already open; 429 more than 10 an hour | signed in |
+| GET | `/api/mod/flags?status=open\|resolved` | – | `{flags: […]}` | moderators (others: 404) |
+| GET | `/api/mod/flags/<id>` | – | flag plus target, linked creator and reporter | moderators |
+| POST | `/api/mod/flags/<id>/dismiss` or `/action` | JSON `{note?}` | the flag | moderators |
+| POST | `/api/mod/interests/<id>/remove` or `/restore` | JSON `{reason}` (required) | the interest | moderators |
+| POST | `/api/mod/users/<id>/ban` | JSON `{duration: "1"\|"7"\|"30"\|"permanent", reason}` | the user; 400 for yourself or another moderator | moderators |
+| POST | `/api/mod/users/<id>/unban` | JSON `{reason?}` | the user | moderators |
+| GET | `/api/mod/users?q=` | display name or id | `{users: […]}`: no emails | moderators |
+| GET | `/api/mod/users/<id>?email=1` | – | status, bans, reports; `email` only with `email=1` (logged) | moderators |
+| GET | `/api/mod/audit?action=` | – | `{actions: […]}` | moderators |
+
+Pages: `/mod`, `/mod/flags/<id>`, `/mod/users`, `/mod/users/<id>`, `/mod/audit` (moderators only).
+
+**Errors** every page and API can now return:
+- `401 {"error": "signin_required"}` when signed out;
+- `403 {"error": "banned", "type", "expires_at", "contact"}` when banned;
+- `429` after too many failed sign-ins.
+
+---
+
+# Terms acceptance and legal pages (legal.py)
+
+| Method | Path | Body | Answer | Who |
+|---|---|---|---|---|
+| GET | `/terms`, `/privacy` | – | the pages | everyone, including banned users |
+| GET | `/accept-terms?next=` | – | the acceptance screen | signed in |
+| POST | `/accept-terms` | form `agree_terms`, `next` | redirect to `next` (same site only); 400 without the box | signed in |
+| POST | `/api/terms/accept` | JSON `{agree: true, version}` | `{accepted: true, version}`; 400 if not ticked or an old version | signed in |
+| GET | `/api/session` | – | `{user_id, needs_acceptance, terms_version}` | signed in |
+
+- `POST /login` and `POST /register` now also need the form field `agree_terms`, and record acceptance.
+- Any other request from a user who hasn't accepted `legal.VERSION` answers `403 {"error": "terms_required", "version"}`, or redirects pages to `/accept-terms`.
+- Facts for the legal pages come from `docs/data-inventory.md`. Open decisions are in `docs/legal-open-items.md`, and the reviewer's list is in `docs/legal-review-checklist.md`.

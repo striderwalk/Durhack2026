@@ -3,6 +3,7 @@
    templates/account/_fields.html). They are saved when "Done" is pressed. #}
 {% from "profile/_avatar.html" import avatar with context %}
 {% from "profile/_badge.html" import only_you %}
+{% import "safety/_dialogs.html" as safety %}
 {% import "account/_fields.html" as fields with context %}
 {% set owner = p.viewer_relation == "self" %}
 <header class="profile-header">
@@ -45,5 +46,7 @@
 		{% elif p.viewer_relation == "connection" %}
 		<span class="connected-pill">✓ Connected</span>
 		{% endif %}
+		{# Block and Report: only on someone else's profile (never yours, nor your own preview) #}
+		{% if not p.can_preview %}{{ safety.more_menu() }}{% endif %}
 	</div>
 </header>

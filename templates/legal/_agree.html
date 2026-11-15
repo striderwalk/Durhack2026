@@ -1,0 +1,20 @@
+{# AgreeBox: the required "I agree" checkbox, shared by sign-in, registration and the
+   acceptance screen. Never pre-ticked. The server checks it too (legal.require_terms)
+   and records acceptance of the current version; nothing is stored in the browser. #}
+{% macro agree_box(error=false) -%}
+<div class="form-check agree-box mb-3">
+	<input class="form-check-input" type="checkbox" id="agree_terms" name="agree_terms" value="yes" required
+		aria-describedby="{{ 'agree-error' if error }}">
+	<label class="form-check-label" for="agree_terms">
+		I am a current Durham student aged 18 or over, and I agree to the
+		<a href="{{ url_for('legal.terms') }}" target="_blank" rel="noopener">Terms and Conditions<span class="visually-hidden"> (opens in a new tab)</span></a>
+		and have read the
+		<a href="{{ url_for('legal.privacy') }}" target="_blank" rel="noopener">Information on Data and Security<span class="visually-hidden"> (opens in a new tab)</span></a>.
+	</label>
+</div>
+{% if error %}
+<div class="alert alert-danger small" id="agree-error" role="alert">
+	Please tick the box to agree before continuing.
+</div>
+{% endif %}
+{%- endmacro %}

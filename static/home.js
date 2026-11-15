@@ -217,15 +217,34 @@
 		return li;
 	}
 
-	// Fill a box with interests, showing "+N more" past the first 8
-	function fillBox(box, interests) {
+	// Fill a box with interests, showing the first 8. Ranked boxes say "+N more";
+	// a category-match box says "Show all N". Both expand in place.
+	function fillBox(box, interests, isCategoryMatch = false) {
 		const name = box.querySelector(".cat-name").textContent;
 		box.querySelector(".cat-pills").replaceChildren(...interests.map((i) => makePill(i, name)));
 		const extra = interests.length - PILLS_PER_BOX;
 		const more = box.querySelector(".cat-expand");
 		more.hidden = extra <= 0 || box.classList.contains("expanded");
-		more.textContent = `+${extra} more`;
-		more.setAttribute("aria-label", `Show ${extra} more ${name} interests`);
+		more.textContent = isCategoryMatch ? `Show all ${interests.length}` : `+${extra} more`;
+		more.setAttribute("aria-label", isCategoryMatch
+			? `Show all ${interests.length} ${name} interests`
+			: `Show ${extra} more ${name} interests`);
+	}
+
+	// CategoryMatch: a small "Category" label by the name, so it's clear why this box
+	// is first; and, if the category has no interests yet, an offer to create one
+	function markCategoryMatch(box, match, q) {
+		box.classList.add("is-category-match");
+		box.querySelector(".cat-head").append(el("span", { class: "cat-badge" }, "Category"));
+		if (match.interests.length) return;
+		const create = el("a", { class: "cat-create", href: "#create" }, "Create a new interest");
+		create.addEventListener("click", (event) => {
+			event.preventDefault();
+			nameEdited = false;
+			goToCreate(q);
+			nameInput?.focus({ preventScroll: true });
+		});
+		box.append(el("p", { class: "cat-more" }, "No interests here yet. ", create));
 	}
 
 	// "+N more" reveals the rest of a box
@@ -261,8 +280,16 @@
 
 		// /api/discover groups by tag; regroup by each interest's own category and score
 		// (static/groupResults.js; see docs/search-ranking-spec.md)
-		const boxes = GroupResults.groupByCategory(GroupResults.flattenTagGroups(data.groups, categoryOf));
-		showResults(q, boxes);
+		const ranked = GroupResults.groupByCategory(GroupResults.flattenTagGroups(data.groups, categoryOf));
+		// Categories the query names ("science", "maths", "mus") come first, with all
+		// their interests. Backend fields mapped here: categoryMatches[].category is a
+		// group key, .match is exact / alias / prefix.
+		const named = (data.categoryMatches || []).map((m) => ({
+			category: m.category,
+			match: m.match,
+			interests: m.interests.map((i) => ({ id: i.id, name: i.name, url: i.url, category: m.category })),
+		}));
+		showResults(q, GroupResults.withCategoryMatches(named, ranked));
 	}
 	const updateResults = debounce(runSearch, SEARCH_DEBOUNCE_MS);
 
@@ -281,7 +308,8 @@
 
 		resultsEl.replaceChildren(...boxes.map((b) => {
 			const box = makeBox(b.category);
-			fillBox(box, b.interests);
+			if (b.isCategoryMatch) markCategoryMatch(box, b, q);
+			fillBox(box, b.interests, b.isCategoryMatch);
 			return box;
 		}));
 		setNote(`Interests matching “${q}”`, true);

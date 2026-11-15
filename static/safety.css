@@ -1,0 +1,261 @@
+/* Block, report, blocked users and the moderator panel. Colours are the shared
+   theme tokens (style.css), so everything works in light and dark. */
+
+/* ---------- Dialogs (native <dialog>) ---------- */
+.safety-dialog {
+    width: min(480px, calc(100vw - 2rem));
+    padding: 1.25rem 1.4rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 20px 50px var(--shadow-strong);
+}
+
+.safety-dialog::backdrop {
+    background: rgba(0, 0, 0, .55);
+}
+
+.safety-dialog-title {
+    margin: 0 0 .9rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.safety-dialog p,
+.safety-dialog li {
+    color: var(--ink);
+}
+
+.safety-legend {
+    margin-bottom: .4rem;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+.safety-list {
+    padding-left: 1.2rem;
+}
+
+.safety-error {
+    margin: .25rem 0;
+    color: var(--danger-text) !important;
+    font-size: .875rem;
+}
+
+.safety-error:empty {
+    display: none;
+}
+
+.safety-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+.safety-dialog :focus-visible,
+.more-menu :focus-visible,
+.report-link:focus-visible,
+.mod-page :focus-visible {
+    outline: 3px solid var(--accent-text);
+    outline-offset: 2px;
+}
+
+/* ---------- ⋯ menu on someone else's profile ---------- */
+.more-menu {
+    position: relative;
+}
+
+.more-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.more-toggle:hover {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+}
+
+.more-menu-list {
+    position: absolute;
+    top: calc(100% + .35rem);
+    right: 0;
+    z-index: 20;
+    min-width: 11rem;
+    margin: 0;
+    padding: .35rem;
+    border: 1px solid var(--line);
+    border-radius: .75rem;
+    background: var(--surface);
+    box-shadow: 0 12px 30px var(--shadow-strong);
+    list-style: none;
+}
+
+.more-menu-list button {
+    width: 100%;
+    padding: .5rem .7rem;
+    border: 0;
+    border-radius: .5rem;
+    background: transparent;
+    color: var(--ink);
+    text-align: left;
+}
+
+.more-menu-list button:hover,
+.more-menu-list button:focus-visible {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+}
+
+/* "Report this interest" */
+.report-link {
+    margin-top: .6rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: .85rem;
+    text-decoration: underline;
+}
+
+.report-link:hover {
+    color: var(--danger-text);
+}
+
+/* ---------- Settings: blocked users ---------- */
+.blocked-list {
+    display: grid;
+    gap: .5rem;
+    margin: .75rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.blocked-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .5rem .75rem;
+    border: 1px solid var(--line);
+    border-radius: .75rem;
+}
+
+/* ---------- Moderator panel (/mod) ---------- */
+.mod-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.mod-page p,
+.mod-page li,
+.mod-page td {
+    color: var(--ink);
+}
+
+.mod-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: .75rem 0 1.25rem;
+    padding: 0;
+    list-style: none;
+}
+
+.mod-nav a {
+    display: inline-block;
+    padding: .35rem .85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.mod-nav a[aria-current] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+.mod-card {
+    margin-bottom: 1rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: .9rem;
+    background: var(--surface);
+}
+
+.mod-card h2,
+.mod-card h3 {
+    margin: 0 0 .5rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.mod-meta {
+    color: var(--muted) !important;
+    font-size: .85rem;
+}
+
+.mod-badge {
+    display: inline-block;
+    padding: .05rem .5rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.mod-badge.danger {
+    background: color-mix(in srgb, var(--danger-text) 15%, transparent);
+    color: var(--danger-text);
+}
+
+.mod-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mod-list > li + li {
+    margin-top: .75rem;
+}
+
+.mod-actions {
+    display: grid;
+    gap: 1rem;
+}
+
+.mod-actions form {
+    display: grid;
+    gap: .5rem;
+}
+
+.mod-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+}
+
+.mod-table th,
+.mod-table td {
+    padding: .45rem .5rem;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+}
+
+.mod-table-wrap {
+    overflow-x: auto;
+}

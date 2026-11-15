@@ -1,0 +1,20 @@
+{# ModUsers: look someone up by display name or id (there are no public handles yet) #}
+{% extends "mod/_layout.html" %}
+{% from "mod/_macros.html" import user_link %}
+{% set tab = "users" %}
+{% block title %}Moderation · Users{% endblock %}
+
+{% block mod %}
+<form class="mod-card d-flex gap-2 flex-wrap align-items-end" method="get" role="search">
+	<div class="flex-grow-1">
+		<label class="form-label" for="user-q">Display name or user number</label>
+		<input class="form-control" id="user-q" name="q" value="{{ q }}">
+	</div>
+	<button class="btn btn-primary" type="submit">Look up</button>
+</form>
+{% if q %}
+{% if users %}
+<ul class="mod-list">{% for u in users %}<li class="mod-card">{{ user_link(u) }}</li>{% endfor %}</ul>
+{% else %}<p class="mod-meta">No one matches “{{ q }}”.</p>{% endif %}
+{% endif %}
+{% endblock %}
