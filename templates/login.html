@@ -8,6 +8,11 @@
 		<div class="card-body">
 			<h1 class="h3 mb-4">Sign in to Durham Superposition</h1>
 
+			{% if too_many %}
+			<div class="alert alert-warning small" role="alert">
+				Too many sign-in attempts. Please wait 15 minutes and try again.
+			</div>
+			{% endif %}
 			{# Shown by the script below when the backend sends us back here after a sign-in attempt #}
 			<div class="alert alert-danger small" id="signin-failed" role="alert" hidden>
 				We couldn't sign you in. Please check your username/email and password.
