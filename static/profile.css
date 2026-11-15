@@ -815,25 +815,28 @@ body:has(.profile-body[data-editing="true"]) {
     }
 }
 
+/* SuggestionCard: flush, even padding, category soft colours (.cat-soft in style.css) */
 .suggestion {
     display: flex;
     align-items: center;
     gap: .75rem;
-    padding: .75rem .9rem;
-    border-left: 4px solid var(--pill-fg);
+    padding: .85rem 1rem;
     border-radius: .75rem;
-    background: var(--pill-bg);
 }
 
 .suggestion-text {
+    display: flex;
     flex: 1;
+    flex-direction: column;
+    gap: .3rem;
     min-width: 0;
 }
 
 .suggestion-name {
-    color: var(--pill-fg);
+    color: var(--cat-text, var(--ink));
     font-weight: 700;
     text-decoration: none;
+    overflow-wrap: anywhere;
 }
 
 .suggestion-name:hover {
@@ -841,21 +844,14 @@ body:has(.profile-body[data-editing="true"]) {
 }
 
 .suggestion-cat {
-    margin-left: .4rem;
-    color: var(--pill-fg);
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--cat-text, var(--ink));
     font-size: .7rem;
     font-weight: 700;
     letter-spacing: .03em;
     text-transform: uppercase;
-}
-
-.suggestion-desc {
-    overflow: hidden;
-    margin: .15rem 0 0;
-    color: var(--pill-fg) !important;
-    font-size: .85rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .suggestion-actions {
@@ -874,12 +870,12 @@ body:has(.profile-body[data-editing="true"]) {
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: var(--pill-fg);
+    color: var(--cat-text, var(--muted));
 }
 
 .suggestion-dismiss:hover,
 .suggestion-dismiss:focus-visible {
-    background: color-mix(in srgb, var(--pill-fg) 15%, transparent);
+    background: color-mix(in srgb, var(--cat) 20%, transparent);
 }
 
 /* ---------- Small screens ---------- */
