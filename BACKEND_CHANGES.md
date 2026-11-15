@@ -6,6 +6,19 @@ commit, so it can be undone on its own with `git revert <commit>`.
 (An earlier version of this file was removed from `main` in 93910d9. The changes it
 listed are in git history: a610551, f7bd510, a0b0b3d, 2b46eca and 4120c14.)
 
+## Search: category names (`/api/discover`)
+
+- **Files:**
+  - `colours.py`: new `CATEGORY_ALIASES` and `match_categories()`, next to the existing category names, which both server and page already use, so the list isn't duplicated;
+  - `discovery.py`: `discover()` adds `categoryMatches`, built by the new `category_matches()`.
+- **What changed:** when the query is a category's name, an alias, or the start of a name (3 or more characters), the response also lists **all** that category's interests (most popular first, then A–Z), flagged `match_type: "category"`. The existing `groups` results are unchanged.
+- **Why:** typing "science" should show Science's interests even though their names and tags don't contain the word.
+- **Needed for:** "Homepage search: category names".
+- **Schema:** no. **Security:** no new data. Interest names and links were already public in search.
+- **Cost:** only when a category matches: one query for all interests (with their tags' categories) and one grouped count from `user_interests`.
+- **Tested** (`tests/test_category_match.py`): exact, any letter case, extra spaces, prefix of 3+ characters, nothing under 3, aliases, no partial words ("sciencefiction"), several matches ordered best first, "science" returns every Science interest, and "chem" or "s" return none.
+- **Undo:** `git revert 4bd9b72`. The page then simply gets no `categoryMatches`.
+
 ## SCHEMA: contacts as a typed list (new table `user_contacts`)
 
 - **Files:**
@@ -85,6 +98,7 @@ listed are in git history: a610551, f7bd510, a0b0b3d, 2b46eca and 4120c14.)
 
 | Gap | Proposal |
 |---|---|
+| **Category-match rules not yet agreed** | Prefix matching and the alias list (`colours.CATEGORY_ALIASES`) are a proposal; see `docs/search-ranking-spec.md`, "Category match". |
 | **No wave / connection-request endpoint exists** | Waves are front-end placeholders (`sendWave` / `acceptWave` in `static/profile.js` send nothing). So there was no server check to add for "you can't wave to yourself". When the endpoint is built: reject `sender == target` with **400 "You can't wave to yourself"**, and make "accept wave" refuse a pending row whose requester and addressee are the same. |
 | **Proposed CHECK constraint (Peter)** | `ALTER TABLE connections ADD CONSTRAINT no_self_connection CHECK (requester_id <> addressee_id);` — not added here, since it's a schema change. |
 | **Contacts API shape not yet agreed** | The list shape `[{id, type, value, label}]` and the 12 types are a proposal. They're implemented on the existing `POST /u/<id>/edit`, not a new endpoint. |

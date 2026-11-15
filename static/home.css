@@ -500,6 +500,24 @@
     display: none;
 }
 
+/* "Category" label on a box that's there because the query named its category */
+.cat-badge {
+    margin-left: auto;
+    padding: .05rem .5rem;
+    border: 1px solid color-mix(in srgb, var(--cat) 45%, transparent);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.home .cat-create {
+    color: var(--accent-text);
+    font-weight: 600;
+}
+
 /* "No matches yet" */
 .home .results-empty {
     margin: 1rem 0;

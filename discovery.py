@@ -15,7 +15,8 @@ as the number of interests and tags grows.
 from sqlalchemy import case, func, select
 from sqlalchemy.orm import selectinload
 
-from models import Interest, Tag, db, interest_tags, normalise_tag
+from colours import GROUPS, category_slug, group_of, match_categories
+from models import Interest, Tag, UserInterest, db, interest_tags, normalise_tag
 
 # Scoring weights
 NAME_MATCH = 3.0
@@ -161,7 +162,41 @@ def discover(query: str) -> dict:
 		"query": query.strip(),
 		"nameMatches": len(name_ids),
 		"groups": group_interests(interests, tag_weight, scores),
+		"categoryMatches": category_matches(q),
 	}
+
+
+def category_matches(query: str) -> list[dict]:
+	"""
+	Categories the query names ("science", "maths", "mus"; see
+	colours.match_categories), best match first, each with ALL its interests,
+	most popular first, then A-Z:
+		[{"category": group key, "name", "match": "exact" | "alias" | "prefix",
+		  "match_type": "category", "interests": [interest_json]}]
+	"""
+	matched = match_categories(query)
+	if not matched:
+		return []
+	popularity = dict(db.session.execute(
+		select(UserInterest.interest_id, func.count()).group_by(UserInterest.interest_id)
+	).all())
+	by_group: dict[str, list] = {key: [] for key, _how in matched}
+	for interest in _load(list(db.session.scalars(select(Interest.interest_id)))):
+		category = interest.category
+		key = group_of(category_slug(category.category_name)) if category else None
+		if key in by_group:
+			by_group[key].append(interest)
+	result = []
+	for key, how in matched:
+		members = sorted(by_group[key], key=lambda i: (-popularity.get(i.interest_id, 0), i.interest_name))
+		result.append({
+			"category": key,
+			"name": GROUPS[key][0],
+			"match": how,
+			"match_type": "category",
+			"interests": [{**interest_json(i), "category": i.category.category_name} for i in members],
+		})
+	return result
 
 
 def _score_by_tags(scores: dict, tag_weight: dict) -> None:
