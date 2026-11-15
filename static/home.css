@@ -427,14 +427,6 @@
     font-weight: 700;
 }
 
-.cat-dot {
-    flex: none;
-    width: .65rem;
-    height: .65rem;
-    border-radius: 50%;
-    background: var(--cat);
-}
-
 .cat-pills {
     display: flex;
     flex-wrap: wrap;
@@ -448,27 +440,7 @@
     display: none;
 }
 
-.cat-pill {
-    display: inline-block;
-    max-width: 100%;
-    padding: .3rem .8rem;
-    border: 1px solid color-mix(in srgb, var(--cat) 30%, transparent);
-    border-radius: 1rem;
-    background: color-mix(in srgb, var(--cat) 15%, var(--surface));
-    color: var(--ink);
-    text-decoration: none;
-    /* Long names wrap inside the pill instead of running out of the box */
-    overflow-wrap: anywhere;
-    transition: border-color .15s, background-color .15s;
-}
-
-.cat-pill:hover,
-.cat-pill:focus-visible {
-    border-color: var(--cat);
-    background: color-mix(in srgb, var(--cat) 24%, var(--surface));
-    color: var(--ink);
-}
-
+/* .cat-pill and .cat-dot are shared with the profile page: see style.css */
 .cat-pill:focus-visible,
 .cat-expand:focus-visible {
     outline: 2px solid var(--accent-text);

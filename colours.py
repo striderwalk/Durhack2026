@@ -156,6 +156,15 @@ def group_var(group_key, part=""):
 	return f"var(--cat-{key}{'-' + part if part else ''})"
 
 
+def category_vars(slug):
+	"""
+	Inline CSS that gives an element its category's soft colours (CategorySoft in
+	style.css): "--cat: var(--cat-science); --cat-text: var(--cat-science-fg)".
+	"""
+	key = group_of(slug)
+	return f"--cat: {group_var(key)}; --cat-text: {group_var(key, 'fg')}"
+
+
 def category_style(slug):
 	"""(name, bg, fg) for a backend category slug: its group's pill colours, as CSS variables."""
 	key = group_of(slug)

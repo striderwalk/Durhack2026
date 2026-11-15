@@ -1,5 +1,7 @@
 {# SuggestedForYou (owner only): three interests similar to yours (profile_api.get_suggestions).
-   "Add" saves it to your profile; × hides it for now. Both bring in the next suggestion. #}
+   Each card shows only the name, its category (dot + name) and the Add and × buttons, in
+   the category's soft colours (CategorySoft, shared with the home page). "Add" saves it to
+   your profile; × hides it for now. Both bring in the next suggestion. #}
 <section class="profile-card card-suggested" id="suggested-card" aria-labelledby="suggested-title">
 	<h2 id="suggested-title">Suggested for you</h2>
 	{% if not p.interests %}
@@ -8,12 +10,11 @@
 	{% elif p.suggestions %}
 	<ul class="suggestions">
 		{% for s in p.suggestions %}
-		{% set name, bg, fg = category_style(s.category_slug) %}
-		<li class="suggestion" style="--pill-bg: {{ bg }}; --pill-fg: {{ fg }}" data-id="{{ s.id }}">
+		{% set name = category_style(s.category_slug)[0] %}
+		<li class="suggestion cat-soft" style="{{ category_vars(s.category_slug) }}" data-id="{{ s.id }}">
 			<div class="suggestion-text">
 				<a class="suggestion-name" href="{{ s.url }}">{{ s.name }}</a>
-				<span class="suggestion-cat">{{ name }}</span>
-				{% if s.description %}<p class="suggestion-desc">{{ s.description }}</p>{% endif %}
+				<span class="suggestion-cat"><span class="cat-dot" aria-hidden="true"></span><span class="visually-hidden">Category: </span>{{ name }}</span>
 			</div>
 			<div class="suggestion-actions">
 				<button type="button" class="btn btn-sm btn-primary" data-suggest-add="{{ s.name }}"

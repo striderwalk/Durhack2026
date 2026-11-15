@@ -1,16 +1,21 @@
-{# InterestTags: the "Interests" card. Pills show the interest and its category NAME
-   (colour alone isn't enough). In edit mode the owner gets a remove (×) button on each
-   pill and an "Add interest" search. Changes save straight away (POST /update-account). #}
+{# InterestTags: the "Interests" card. Each interest is its own pill in the soft colours
+   of its OWN category (CategorySoft in style.css, shared with the home page), with a
+   dot and the category NAME always shown (colour alone isn't enough: Sport and
+   Recreation are both green). Same pills on public profiles. In edit mode the owner
+   gets a remove (×) button on each pill and the "Add an interest" search at the bottom.
+   Changes save straight away (POST /update-account). #}
 {% set owner = p.viewer_relation == "self" %}
 <section class="profile-card card-interests" id="interests-card" aria-labelledby="interests-title">
 	<h2 id="interests-title">Interests</h2>
 	{% if p.interests %}
-	<ul class="interest-pills">
+	<ul class="interest-items">
 		{% for i in p.interests %}
-		{% set name, bg, fg = category_style(i.category_slug) %}
-		<li class="interest-pill-item" style="--pill-bg: {{ bg }}; --pill-fg: {{ fg }}">
-			<a class="interest-pill" href="{{ i.url }}">
-				{{ i.name }}<span class="pill-cat"><span class="visually-hidden">, category: </span>{{ name }}</span>
+		{% set cat_name = category_style(i.category_slug)[0] %}
+		<li class="interest-item" style="{{ category_vars(i.category_slug) }}">
+			<a class="cat-pill interest-item-link" href="{{ i.url }}" title="{{ cat_name }}">
+				<span class="cat-dot" aria-hidden="true"></span>
+				<span class="interest-item-name">{{ i.name }}</span>
+				<span class="interest-item-cat"><span class="visually-hidden">, category: </span>{{ cat_name }}</span>
 			</a>
 			{% if owner %}
 			<button type="button" class="pill-remove edit-only" data-remove="{{ i.name }}"
@@ -22,7 +27,8 @@
 		{% endfor %}
 	</ul>
 	{% elif owner %}
-	<p class="card-empty">You haven't added any interests yet.</p>
+	<p class="card-empty">Add your first interest</p>
+	<button type="button" class="btn btn-outline-primary btn-sm view-only" data-action="start-adding">Add an interest</button>
 	{% else %}
 	<p class="card-empty">No interests added yet.</p>
 	{% endif %}
