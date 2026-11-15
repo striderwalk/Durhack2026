@@ -215,13 +215,16 @@ a.profile-stat:focus-visible span {
     font-weight: 600;
 }
 
-/* ---------- Cards ---------- */
-/* Desktop: left column Interests (+ Suggested), right column Contact above About.
-   Phones: one column in page order: Interests, Suggested, About, Contact. */
+/* ---------- Cards ----------
+   Desktop (768px+): two columns in one grid row that stretches both to the same
+   height. Left: Interests fills its column. Right: Contact at its natural height,
+   then About takes the rest, so the Interests and About bottoms line up, whatever
+   the content (no fixed heights). Content inside the cards stays at the top.
+   Phones: one column: header, Interests, Suggested, About, Contact (see below). */
 .profile-columns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
     gap: 1.25rem;
 }
 
@@ -230,6 +233,11 @@ a.profile-stat:focus-visible span {
     flex-direction: column;
     gap: 1.25rem;
     min-width: 0;
+}
+
+.profile-col > .card-interests,
+.profile-col-side > .card-about {
+    flex: 1 1 auto;
 }
 
 .profile-col-side .card-contact {
@@ -871,12 +879,28 @@ body:has(.profile-body[data-editing="true"]) {
         gap: 1.25rem;
     }
 
-    .profile-columns {
-        grid-template-columns: 1fr;
+    /* One column in reading order: the columns step aside (display: contents)
+       so every card can be ordered in the page's single column */
+    .profile-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
     }
 
-    .profile-col-side .card-contact {
-        order: 0;
+    .profile-columns,
+    .profile-col {
+        display: contents;
+    }
+
+    .profile-header { order: 0; }
+    .card-interests { order: 1; }
+    .card-suggested { order: 2; margin-top: 0; }
+    .card-about { order: 3; }
+    .profile-col-side .card-contact { order: 4; }
+
+    .profile-col > .card-interests,
+    .profile-col-side > .card-about {
+        flex: none;
     }
 
     .header-fields-row {
