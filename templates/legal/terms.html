@@ -1,0 +1,139 @@
+{# Terms and Conditions: a FACT-BASED DRAFT for human legal review, not final text.
+   Facts come from docs/data-inventory.md; open points are in docs/legal-open-items.md. #}
+{% extends "legal/_page.html" %}
+{% set heading = "Terms and Conditions" %}
+{% set sections = [
+	("about", "What this service is"), ("who", "Who can use it"), ("university", "Not part of Durham University"),
+	("account", "Your account"), ("rules", "Using the service: the rules"), ("content", "What you post"),
+	("safety", "Safety, reporting and moderation"), ("bans", "Bans"), ("availability", "Availability"),
+	("liability", "Our liability"), ("ending", "Ending your account"), ("changes", "Changes to these terms"),
+	("law", "Law"), ("contact", "Questions and appeals")] %}
+{% block title %}Terms and Conditions{% endblock %}
+
+{% block legal %}
+<section id="about">
+	<h2>1. What this service is</h2>
+	<p>Durham Superposition helps Durham students find other students who share their interests.
+		You can add interests to your profile, see who else has them, create new interests,
+		and share contact details with people you connect with.</p>
+	<p>It is run by {{ LEGAL.operator }} as a student project.</p>
+</section>
+
+<section id="who">
+	<h2>2. Who can use it</h2>
+	<ul>
+		<li>You must be a <strong>current student</strong> at Durham University.</li>
+		<li>You must register with your student <strong>@durham.ac.uk</strong> email address. Staff cannot use the service.</li>
+		<li>You must be <strong>18 or over</strong>. [MINIMUM AGE TO CONFIRM]</li>
+		<li>One account per person. Don't create accounts for anyone else.</li>
+	</ul>
+	<p class="legal-flag">[TO CONFIRM] At the moment the service checks that an address ends in @durham.ac.uk,
+		but it does not yet send a code to prove you own the address, and it cannot yet tell staff from students.</p>
+</section>
+
+<section id="university">
+	<h2>3. Not part of Durham University</h2>
+	<p>Durham Superposition is <strong>not affiliated with, endorsed by or operated by Durham University</strong>.
+		The university is not responsible for it. [PERMISSION TO USE THE NAME "DURHAM" TO CONFIRM]</p>
+</section>
+
+<section id="account">
+	<h2>4. Your account</h2>
+	<ul>
+		<li>You sign in with your email address or username and a password. [TO CONFIRM: update this if sign-in moves to one-time codes sent to your email]</li>
+		<li>Keep your password private. Don't share your account or let anyone else use it.</li>
+		<li>If you think someone else has used your account, tell us at {{ LEGAL.contact }}.</li>
+	</ul>
+</section>
+
+<section id="rules">
+	<h2>5. Using the service: the rules</h2>
+	<p>Don't use the service to:</p>
+	<ul>
+		<li>harass, bully, threaten or intimidate anyone;</li>
+		<li>post hateful content, or content that attacks people for who they are;</li>
+		<li>post sexual content;</li>
+		<li>pretend to be someone else;</li>
+		<li>send spam or advertising;</li>
+		<li>post anything illegal;</li>
+		<li>copy or collect other people's information, including by automated scraping;</li>
+		<li>share someone else's contact details without their permission;</li>
+		<li>misuse connection requests ("waves"), for example to pester someone who hasn't responded.</li>
+	</ul>
+	<p>Interests you create must be genuine interests that other students could share.</p>
+</section>
+
+<section id="content">
+	<h2>6. What you post</h2>
+	<p>You own what you post: your profile, bio, interests and contact details.
+		You let us show it to other users in the ways the service describes (for example,
+		your profile to signed-in students, and your contact details only to your connections).
+		This permission ends when your content is removed, except where we keep records as described
+		in the <a href="{{ url_for('legal.privacy') }}">Information on Data and Security</a>.</p>
+	<p>You are responsible for what you post. Make sure you have the right to post it.</p>
+</section>
+
+<section id="safety">
+	<h2>7. Safety, reporting and moderation</h2>
+	<ul>
+		<li><strong>Report</strong> a person or an interest using the Report options. A moderator will review it.
+			The person you report is not told who reported them.</li>
+		<li><strong>Block</strong> someone from their profile. Neither of you will then see the other's profile or appear
+			on each other's interest pages, and any connection between you ends. They are not told.</li>
+		<li>Moderators can remove interests and can suspend or ban accounts that break these rules.</li>
+		<li>We don't check everything people post, and we're not responsible for what users post or
+			for what happens when users meet or share contact details.</li>
+	</ul>
+	<p class="legal-callout"><strong>Stay safe.</strong> If you meet someone from the service, meet in a public place,
+		tell a friend where you're going, and leave if you feel uncomfortable. This is advice, not a guarantee of safety.</p>
+</section>
+
+<section id="bans">
+	<h2>8. Bans</h2>
+	<ul>
+		<li>A moderator can ban an account for 1 day, 7 days, 30 days, or permanently.</li>
+		<li>While banned you are signed out, can't sign in, and see a screen explaining the ban and, for a temporary ban, when it ends.</li>
+		<li>A record of the ban is kept, including a one-way fingerprint of your email address, so that a ban
+			still applies if you register again. See the <a href="{{ url_for('legal.privacy') }}#retention">Information on Data and Security</a>.</li>
+		<li>To appeal a ban, contact {{ LEGAL.contact }}. [APPEALS PROCESS TO CONFIRM]</li>
+	</ul>
+</section>
+
+<section id="availability">
+	<h2>9. Availability</h2>
+	<p>The service is provided "as is", as a student project. It may change, have interruptions, or stop.
+		We don't promise that you'll find matches or connections.</p>
+</section>
+
+<section id="liability">
+	<h2>10. Our liability</h2>
+	<p class="legal-flag">[HUMAN LEGAL REVIEW REQUIRED FOR THIS SECTION]</p>
+	<p>Nothing in these terms limits or excludes liability for death or personal injury caused by negligence,
+		for fraud or fraudulent misrepresentation, or for anything else that cannot be limited or excluded by law.</p>
+	<p>Subject to that, and as far as the law allows, we are not liable for loss caused by other users' content or
+		conduct, or by the service being unavailable. [LIABILITY WORDING TO CONFIRM]</p>
+</section>
+
+<section id="ending">
+	<h2>11. Ending your account</h2>
+	<p>You can stop using the service at any time. The app does not yet have a "delete my account" button:
+		to ask for your account to be deleted, contact {{ LEGAL.contact }}. [ACCOUNT DELETION PROCESS TO CONFIRM]</p>
+	<p>We may suspend or end access for anyone who breaks these terms (see <a href="#bans">Bans</a>).</p>
+</section>
+
+<section id="changes">
+	<h2>12. Changes to these terms</h2>
+	<p>We may update these terms. When we do, the version number at the top changes and you'll be asked
+		to accept the new version before you can carry on using the service.</p>
+</section>
+
+<section id="law">
+	<h2>13. Law</h2>
+	<p>These terms are governed by the law of England and Wales. [GOVERNING LAW TO CONFIRM]</p>
+</section>
+
+<section id="contact">
+	<h2>14. Questions and appeals</h2>
+	<p>For questions about these terms, or to appeal a moderation decision, contact {{ LEGAL.contact }}.</p>
+</section>
+{% endblock %}
