@@ -19,8 +19,8 @@ after legal review.
 | Item | Where | Decide |
 |---|---|---|
 | `[MINIMUM AGE TO CONFIRM]` | Terms §2, Privacy §10 | 18+ is proposed. Some students are under 18 |
-| Email ownership not verified | Terms §2 `[TO CONFIRM]`, inventory | No code is sent to prove the address. Add verification, or adjust the wording |
-| Staff can't be told from students | Terms §2, inventory | Needs a rule, such as a CIS-code format or directory lookup, or a change of wording |
+| Email ownership not verified | Terms §2 `[TO CONFIRM]`, inventory | No code is sent to prove the address. Email-code verification is planned |
+| Student-address rule | Terms §2, inventory | Sign-up refuses addresses with a dot before the `@` (staff-style). Confirm this matches Durham's real student and staff formats |
 | `[PERMISSION TO USE THE NAME "DURHAM" TO CONFIRM]` | Terms §3 | Permission from the university to use "Durham" in the name |
 | Sign-in method | Terms §4 `[TO CONFIRM: update this if sign-in moves to one-time codes…]`, Privacy §4 | The app uses passwords; the brief describes one-time codes |
 | Username = CIS code? | Inventory `[TO CONFIRM]` | Users choose their username freely. It isn't derived from the email |

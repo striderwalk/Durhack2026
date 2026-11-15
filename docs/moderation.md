@@ -19,7 +19,7 @@ themselves, and every action is recorded under their name.
 
 ### Adding or removing moderators
 
-- Set `MODERATOR_EMAILS` to their verified email addresses, comma-separated, either in the server's environment or in the app config (see `.env.example`).
+- Set `MODERATOR_EMAILS` to their email addresses, comma-separated, either in the server's environment or in the app config (see `.env.example`).
 - It's checked on **every** moderator request, so a change applies as soon as the server sees the new setting.
 - To remove all moderators, clear the setting.
 - Never commit real addresses to the code.
@@ -39,9 +39,8 @@ What is enforced now, on the server, for every request:
   - APIs answer `403 {"error": "banned", "type", "expires_at", "contact"}`.
 - **Repeated failed sign-ins:** 10 failures per address or per IP address in 15 minutes gives `429` for 15 minutes.
   - This is kept in the server's memory, so it resets on restart and isn't shared across processes. It's enough for development, not for production.
-- **Registration** accepts only `@durham.ac.uk` addresses.
-  - Nothing yet tells students from staff.
-  - Nothing proves you own the address: there's no verification email.
+- **Registration** accepts only student-style `@durham.ac.uk` addresses: no dot before the `@`, since staff use `firstname.lastname@`.
+  - Nothing proves you own the address: email-code verification is planned.
 
 ### Every endpoint and who can use it
 
@@ -129,7 +128,7 @@ Moderator endpoints answer **404** to everyone else, as if they didn't exist. Si
   - a banned person is signed out straight away, and can't sign in until the ban ends or is lifted;
   - they see when a temporary ban ends, and the contact line (`MODERATION_CONTACT_EMAIL`; a placeholder until it's set).
 - **Who can be banned:** moderators can't ban themselves or another moderator.
-- **Survives account deletion:** each ban is stored with a **hash of the verified email address** (sha256 of the lower-case address) as well as the account number, and has no link that would delete it with the account. Re-registering with the same address stays banned. **The privacy notice must say this:** "If your account is banned, we keep a one-way fingerprint of your email address so the ban still applies if you register again."
+- **Survives account deletion:** each ban is stored with a **hash of the account's email address** (sha256 of the lower-case address) as well as the account number, and has no link that would delete it with the account. Re-registering with the same address stays banned. **The privacy notice must say this:** "If your account is banned, we keep a one-way fingerprint of your email address so the ban still applies if you register again."
 - **Stored** (`user_bans` table): account number, email fingerprint, type, end date, reason, who and when; plus when and by whom it was lifted.
 
 ## The audit log
@@ -144,7 +143,7 @@ Moderator endpoints answer **404** to everyone else, as if they didn't exist. Si
 - reports, with the reporter's display name (only on the report's detail page);
 - the reported profile or interest, and the interest's creator;
 - a user's ban history, and reports about them or their interests;
-- a user's verified email address, only on that user's detail page, when they choose "Show verified email". That view is logged.
+- a user's email address, only on that user's detail page, when they choose "Show email". That view is logged.
 
 **Can't:**
 - passwords;
@@ -163,7 +162,7 @@ Nothing is deleted automatically yet. Proposed for the team to agree:
 ## For the team (NEEDS INPUT)
 
 - **Sign-in:** the brief describes one-time codes to an `@durham.ac.uk` address with no passwords. The app uses passwords. Moving to codes is an auth redesign, so it isn't done here.
-- **Verification:** there's no "verified" flag or email check. "Verified Durham students only" can't be enforced until there is.
+- **Verification:** there's no "verified" flag or email check yet (planned). Sign-up refuses non-student-style addresses, but ownership isn't proven.
 - **Staff:** nothing tells students from staff.
 - **Contact address:** `MODERATION_CONTACT_EMAIL` isn't set, so banned users see a placeholder.
 - **Retention periods:** above.

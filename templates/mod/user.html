@@ -11,9 +11,9 @@
 		{% if u.banned %}<span class="mod-badge danger">{{ "Banned until " ~ u.ban_expires_at[:10] if u.ban_expires_at else "Banned" }}</span>{% endif %}</h2>
 	<p class="mb-1"><a href="{{ u.url }}">Open profile</a></p>
 	{% if u.email %}
-	<p class="mb-0">Verified email: <strong>{{ u.email }}</strong> <span class="mod-meta">(this view was logged)</span></p>
+	<p class="mb-0">Email: <strong>{{ u.email }}</strong> <span class="mod-meta">(this view was logged)</span></p>
 	{% else %}
-	<p class="mb-0"><a href="?email=1">Show verified email</a> <span class="mod-meta">(logged in the audit log)</span></p>
+	<p class="mb-0"><a href="?email=1">Show email</a> <span class="mod-meta">(logged in the audit log)</span></p>
 	{% endif %}
 </section>
 

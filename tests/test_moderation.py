@@ -274,7 +274,7 @@ class ModerationTest(unittest.TestCase):
 	def test_permanent_ban_survives_the_account_being_deleted(self):
 		sam = signed_in("sam")
 		client = app.test_client()
-		client.post("/register", data={"username": "zzbanned", "email": "zz.banned@durham.ac.uk",
+		client.post("/register", data={"username": "zzbanned", "email": "zzbanned@durham.ac.uk",
 			"password": "longpassword1", "confirm_password": "longpassword1", "agree_terms": "yes"})
 		with app.app_context():
 			user_id = db.session.scalar(select(User.user_id).where(User.username == "zzbanned"))
@@ -283,7 +283,7 @@ class ModerationTest(unittest.TestCase):
 			db.session.execute(User.__table__.delete().where(User.user_id == user_id))
 			db.session.commit()
 		again = app.test_client()  # …and registered again with the same address
-		again.post("/register", data={"username": "zzbanned2", "email": "ZZ.Banned@durham.ac.uk",
+		again.post("/register", data={"username": "zzbanned2", "email": "ZZBanned@durham.ac.uk",
 			"password": "longpassword1", "confirm_password": "longpassword1", "agree_terms": "yes"})
 		try:
 			self.assertEqual(again.get("/").status_code, 403)

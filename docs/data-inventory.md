@@ -22,9 +22,9 @@ The database is one SQLite file, `instance/app.db`. Its location in production i
 ### Account (`users` table)
 
 - **Email address** (`email`)
-  - **What:** typed at registration and stored in lower case. Registration accepts only `@durham.ac.uk` addresses (`app.py` `register`).
+  - **What:** typed at registration and stored in lower case. Registration accepts only student-style `@durham.ac.uk` addresses: no dot before the `@` (`app.py` `register`).
   - **Not verified:** nothing proves the person owns it.
-  - **Who sees it:** the user, on their own `/account` page. Moderators see it only when they choose "Show verified email" on a user's detail page, and that view is logged.
+  - **Who sees it:** the user, on their own `/account` page. Moderators see it only when they choose "Show email" on a user's detail page, and that view is logged.
   - **Never returned to other users** by any page or API.
 - **Username** (`username`)
   - **What:** chosen by the user at registration and stored in lower case. It can be used to sign in.
@@ -148,7 +148,7 @@ No analytics, advertising or tracking cookies were found.
 - **Passwords** are stored only as scrypt hashes.
 - **Sign-in gate (`moderation.py`):** every page and API needs a signed-in, not-banned user, except sign-in, registration, log-out and the legal pages.
 - **Failed sign-ins:** 10 per IP address or per email or username in 15 minutes gives a 429. The counters are in memory only.
-- **Registration** accepts only `@durham.ac.uk` addresses.
+- **Registration** accepts only student-style `@durham.ac.uk` addresses (no dot before the `@`). Ownership isn't verified.
 - **Server-side permission checks:**
   - contacts only to connections;
   - year and bio withheld when hidden;
@@ -160,11 +160,11 @@ No analytics, advertising or tracking cookies were found.
 - **The new endpoints require JSON bodies,** which stops plain cross-site form posts.
 
 **Not implemented (don't claim these):**
-- one-time sign-in codes, and email verification;
+- one-time sign-in codes, and email verification (planned);
 - HTTPS settings in the app [TO CONFIRM at the host];
 - secure or HttpOnly cookie settings beyond Flask's defaults. Flask's session cookie is HttpOnly by default; `SESSION_COOKIE_SECURE` isn't set;
 - CSRF tokens;
 - a secret `SECRET_KEY` (it's hard-coded);
 - encryption of the database file;
 - account deletion;
-- staff exclusion.
+- staff exclusion beyond the sign-up address format (existing accounts are unaffected).

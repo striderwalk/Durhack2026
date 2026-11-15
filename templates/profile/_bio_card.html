@@ -23,7 +23,7 @@
 		<textarea class="form-control" id="edit-bio" rows="4" maxlength="{{ BIO_MAX }}"
 			aria-describedby="bio-visibility bio-count bio-warning bio-note">{{ p.bio }}</textarea>
 		<div class="bio-meta">
-			<p class="bio-visibility" id="bio-visibility">Visible to all verified Durham students once published</p>
+			<p class="bio-visibility" id="bio-visibility">Visible to all signed-in students once published</p>
 			<p class="bio-count" id="bio-count"><span data-count>{{ p.bio | length }}</span> / {{ BIO_MAX }}</p>
 		</div>
 		<p class="bio-warning" id="bio-warning" hidden>

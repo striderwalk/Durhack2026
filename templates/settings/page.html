@@ -56,10 +56,11 @@
 			</div>
 
 			<div>
-				<p class="form-label mb-1">Durham verification</p>
+				<p class="form-label mb-1">Email verification (planned)</p>
 				{# TODO(backend): no verified flag, so the "Verified Durham student" badge can't be shown truthfully #}
 				<p class="form-text mb-0"><span class="coming-soon">Coming soon</span>
-					A “Verified Durham student” badge will show here once the backend records verification.</p>
+					Sign-up only accepts student @durham.ac.uk addresses, but we don't yet check that you own the address.
+					Email-code verification, and a “Verified Durham student” badge, are planned.</p>
 			</div>
 		</div>
 
@@ -94,7 +95,7 @@
 			<div>
 				<p class="form-label mb-1">Bio</p>
 				<p class="form-text mb-0" id="bio-visibility-status">
-					{% if p.bio and p.bio_published %}Published: all verified Durham students can see it.
+					{% if p.bio and p.bio_published %}Published: all signed-in students can see it.
 					{% elif p.bio %}Draft: only you can see it.
 					{% else %}You haven't written a bio.{% endif %}
 					<a href="{{ url_for('profiles.show', user_id=p.id, edit=1) }}">{{ "Publish or unpublish it on your profile" if p.bio else "Write one on your profile" }}</a>
