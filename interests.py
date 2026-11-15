@@ -13,6 +13,7 @@ import colours
 import discovery
 import home_api
 import interest_api
+import migrations
 import taxonomy
 from interest_names import to_interest_title_case
 from models import Category, Interest, Tag, db
@@ -67,7 +68,10 @@ def create_interest():
 	# Don't create duplicates: send people to the existing interest instead
 	existing = db.session.scalar(
 		select(Interest).where(func.lower(Interest.interest_name) == name.lower())
+		.execution_options(include_removed=True)  # a removed interest still holds its name
 	)
+	if existing and existing.removed_at is not None:
+		return flask.redirect(flask.url_for("home"))  # removed by a moderator: not re-created
 	if existing:
 		return flask.redirect(flask.url_for("interests.view_interest", interest_id=existing.interest_id))
 
@@ -170,6 +174,7 @@ def init_app(app: flask.Flask) -> None:
 	app.register_blueprint(bp)
 	with app.app_context():
 		db.create_all()
+		migrations.run()  # additive columns for existing databases (migrations.py)
 		check_schema()
 		if db.session.scalar(select(Tag.tag_id).limit(1)) is None:
 			seed_taxonomy()
