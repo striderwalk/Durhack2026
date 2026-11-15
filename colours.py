@@ -55,6 +55,22 @@ DARK_PILLS = {
 	"other": ("#2E2B2E", "#CDCBCA"),
 }
 
+# Other words that mean a category (exact match only), for search. Easy to extend:
+# add lowercase words to a list. Used by the server (match_categories) and sent to
+# the page with the palette. NOT YET AGREED with the team.
+CATEGORY_ALIASES = {
+	"science": ["sciences"],
+	"mathematics": ["maths", "math"],
+	"technology": ["tech"],
+	"arts": ["art"],
+	"music": [],
+	"humanities": ["humanity"],
+	"society": [],
+	"practical": [],
+	"sport": ["sports"],
+	"recreation": [],
+}
+
 # backend category slug -> group key
 CATEGORY_GROUP = {
 	"science-and-the-natural-world": "science",
@@ -90,6 +106,33 @@ def on_dark(hex_colour):
 	h = hex_colour.lstrip("#")
 	r, g, b = (round(int(h[i:i + 2], 16) * .45 + 255 * .55) for i in (0, 2, 4))
 	return f"#{r:02X}{g:02X}{b:02X}"
+
+
+def match_categories(query, names=None, aliases=None):
+	"""
+	Which categories a search query names, best first: [(group key, how)].
+	how is "exact" (the name: "science"), "alias" (a word in CATEGORY_ALIASES:
+	"maths") or "prefix" (the start of a name, 3+ characters: "mus"). Case and
+	extra spaces are ignored. names/aliases default to GROUPS/CATEGORY_ALIASES.
+	"""
+	q = " ".join((query or "").lower().split())
+	if not q:
+		return []
+	names = names or {key: group[0] for key, group in GROUPS.items()}
+	aliases = CATEGORY_ALIASES if aliases is None else aliases
+	found = {}
+	for key, name in names.items():
+		if name.lower() == q:
+			found[key] = "exact"
+	for key, words in aliases.items():
+		if key not in found and q in [w.lower() for w in words]:
+			found[key] = "alias"
+	if len(q) >= 3:
+		for key, name in names.items():
+			if key not in found and name.lower().startswith(q):
+				found[key] = "prefix"
+	order = {"exact": 0, "alias": 1, "prefix": 2}
+	return sorted(found.items(), key=lambda item: order[item[1]])
 
 
 def category_slug(category_name):
