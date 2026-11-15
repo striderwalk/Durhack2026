@@ -1,0 +1,29 @@
+{# LegalPage: shared frame for /terms and /privacy: title, version and date, the draft
+   notice (legal.SHOW_DRAFT_NOTICE), and a table of contents built from `sections`
+   [(anchor, heading)]. Public: readable signed out and while banned. #}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='legal.css') }}">
+{% endblock %}
+
+{% block content %}
+<article class="legal-page">
+	{% if LEGAL.draft %}
+	<p class="legal-draft" role="note"><strong>Draft, pending review.</strong> This text is a fact-based draft and has not had legal review. Bracketed items still need a decision.</p>
+	{% endif %}
+	<h1 class="legal-title">{{ heading }}</h1>
+	<p class="legal-meta">Last updated {{ LEGAL.last_updated }} · Version {{ LEGAL.version }}</p>
+
+	<nav class="legal-toc" aria-labelledby="toc-title">
+		<h2 class="legal-toc-title" id="toc-title">Contents</h2>
+		<ol>
+			{% for anchor, title in sections %}<li><a href="#{{ anchor }}">{{ title }}</a></li>{% endfor %}
+		</ol>
+	</nav>
+
+	{% block legal %}{% endblock %}
+
+	<p class="legal-meta legal-end">Questions: {{ LEGAL.contact }}</p>
+</article>
+{% endblock %}

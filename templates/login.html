@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% from "legal/_agree.html" import agree_box %}
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
@@ -35,6 +36,8 @@
 					<input type="password" class="form-control" id="password" name="password" required>
 				</div>
 
+				{{ agree_box(terms_error) }}
+
 				<button type="submit" class="btn btn-primary w-100">Sign in</button>
 			</form>
 		</div>
@@ -52,7 +55,8 @@
 		const KEY = "signin-attempt";
 		let sentAt = 0;
 		try { sentAt = Number(sessionStorage.getItem(KEY)); sessionStorage.removeItem(KEY); } catch { }
-		if (sentAt && Date.now() - sentAt < 8000) {
+		// (not when the page came back only because the box wasn't ticked)
+		if (sentAt && Date.now() - sentAt < 8000 && !document.getElementById("agree-error")) {
 			document.getElementById("signin-failed").hidden = false;
 			document.getElementById("identifier").focus();
 		}

@@ -35,6 +35,8 @@ LOGIN_WINDOW = 15 * 60  # seconds
 
 # Pages and endpoints a signed-out person may reach
 PUBLIC_ENDPOINTS = {"login_get", "login_post", "register", "logout", "static"}
+# Reachable by anyone, even while banned (legal.py)
+ALWAYS_OPEN_ENDPOINTS = {"legal.terms", "legal.privacy", "static"}
 
 
 def now():
@@ -139,6 +141,9 @@ def gate():
 	sign-ins are slowed down.
 	"""
 	endpoint = flask.request.endpoint or ""
+	# The Terms and the data information are open to everyone, banned users included
+	if endpoint in ALWAYS_OPEN_ENDPOINTS:
+		return None
 	if endpoint == "login_post" and any(_recent_failures(k) >= LOGIN_FAILURES_ALLOWED for k in _login_keys()):
 		return flask.make_response(flask.render_template(
 			"login.html", too_many=True), 429)

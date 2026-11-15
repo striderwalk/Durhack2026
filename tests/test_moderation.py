@@ -25,7 +25,7 @@ ALEX, MAYA, LIAM, PRIYA, SAM = 1, 2, 3, 4, 5
 
 def signed_in(username, password="password123"):
 	client = app.test_client()
-	client.post("/login", data={"identifier": username, "password": password})
+	client.post("/login", data={"identifier": username, "password": password, "agree_terms": "yes"})
 	return client
 
 
@@ -70,7 +70,7 @@ class ModerationTest(unittest.TestCase):
 
 	def test_signed_out_requests_need_sign_in_everywhere(self):
 		client = app.test_client()
-		public = {"login_get", "login_post", "register", "logout", "static"}
+		public = {"login_get", "login_post", "register", "logout", "static", "legal.terms", "legal.privacy"}
 		checked = 0
 		for rule in app.url_map.iter_rules():
 			if rule.endpoint in public:
@@ -91,8 +91,8 @@ class ModerationTest(unittest.TestCase):
 	def test_repeated_failed_sign_ins_are_slowed_down(self):
 		client = app.test_client()
 		for _ in range(moderation.LOGIN_FAILURES_ALLOWED):
-			client.post("/login", data={"identifier": "alex", "password": "wrong"})
-		blocked = client.post("/login", data={"identifier": "alex", "password": "password123"})
+			client.post("/login", data={"identifier": "alex", "password": "wrong", "agree_terms": "yes"})
+		blocked = client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})
 		self.assertEqual(blocked.status_code, 429)
 
 	# ---------- Blocks ----------
@@ -275,7 +275,7 @@ class ModerationTest(unittest.TestCase):
 		sam = signed_in("sam")
 		client = app.test_client()
 		client.post("/register", data={"username": "zzbanned", "email": "zz.banned@durham.ac.uk",
-			"password": "longpassword1", "confirm_password": "longpassword1"})
+			"password": "longpassword1", "confirm_password": "longpassword1", "agree_terms": "yes"})
 		with app.app_context():
 			user_id = db.session.scalar(select(User.user_id).where(User.username == "zzbanned"))
 		as_json(sam, "POST", f"/api/mod/users/{user_id}/ban", {"duration": "permanent", "reason": "test"})
@@ -284,7 +284,7 @@ class ModerationTest(unittest.TestCase):
 			db.session.commit()
 		again = app.test_client()  # …and registered again with the same address
 		again.post("/register", data={"username": "zzbanned2", "email": "ZZ.Banned@durham.ac.uk",
-			"password": "longpassword1", "confirm_password": "longpassword1"})
+			"password": "longpassword1", "confirm_password": "longpassword1", "agree_terms": "yes"})
 		try:
 			self.assertEqual(again.get("/").status_code, 403)
 			self.assertIn("permanently banned", signed_in("zzbanned2", "longpassword1").get("/").get_data(as_text=True))

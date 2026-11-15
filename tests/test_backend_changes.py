@@ -36,7 +36,7 @@ class BackendChangesTest(unittest.TestCase):
 	def register(self, username, email):
 		return self.client.post("/register", data={
 			"username": username, "email": email,
-			"password": PASSWORD, "confirm_password": PASSWORD,
+			"password": PASSWORD, "confirm_password": PASSWORD, "agree_terms": "yes",
 		})
 
 	def test_registration_succeeds_instead_of_crashing(self):
@@ -52,7 +52,7 @@ class BackendChangesTest(unittest.TestCase):
 			self.assertIsNone(User.query.filter_by(username="zztest02").first())
 
 	def test_update_account_cannot_change_username(self):
-		self.client.post("/login", data={"identifier": "alex", "password": "password123"})
+		self.client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})
 		with app.app_context():
 			old_bio = db.session.get(User, 1).bio
 		self.client.post("/update-account", data={"new-username": "zzhijack", "new-bio": "Test bio"})
@@ -69,7 +69,7 @@ class BackendChangesTest(unittest.TestCase):
 			self.assertIsNone(Interest.query.filter_by(interest_name="Backend Test Interest").first())
 
 	def test_search_results_include_category_and_score(self):
-		self.client.post("/login", data={"identifier": "alex", "password": "password123"})  # search needs sign-in
+		self.client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})  # search needs sign-in
 		data = self.client.get("/api/discover?q=print").get_json()
 		items = [i for g in data["groups"] for i in g["interests"]]
 		self.assertTrue(items)
@@ -85,7 +85,7 @@ class InterestTitleCaseTest(unittest.TestCase):
 
 	def setUp(self):
 		self.client = app.test_client()
-		self.client.post("/login", data={"identifier": "alex", "password": "password123"})
+		self.client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})
 
 	def tearDown(self):
 		with app.app_context():
@@ -118,7 +118,7 @@ class ContactListTest(unittest.TestCase):
 
 	def setUp(self):
 		self.client = app.test_client()
-		self.client.post("/login", data={"identifier": "alex", "password": "password123"})
+		self.client.post("/login", data={"identifier": "alex", "password": "password123", "agree_terms": "yes"})
 		with app.app_context():
 			user = db.session.get(User, 1)
 			self.saved = {c: getattr(user, c) for c in (
@@ -153,7 +153,7 @@ class ContactListTest(unittest.TestCase):
 
 	def contacts_as(self, username):
 		client = app.test_client()
-		client.post("/login", data={"identifier": username, "password": "password123"})
+		client.post("/login", data={"identifier": username, "password": "password123", "agree_terms": "yes"})
 		with app.app_context():
 			viewer = User.query.filter_by(username=username).first()
 			return profile_api.get_profile(1, viewer)["contacts"]
@@ -202,7 +202,7 @@ class ContactListTest(unittest.TestCase):
 		self.assertIsNone(self.contacts_as("priya"))  # not connected to Alex
 		self.assertTrue(self.contacts_as("maya"))     # connected to Alex
 		other = app.test_client()
-		other.post("/login", data={"identifier": "priya", "password": "password123"})
+		other.post("/login", data={"identifier": "priya", "password": "password123", "agree_terms": "yes"})
 		html = other.get("/u/1").get_data(as_text=True)
 		self.assertNotIn("alex_m", html)
 		self.assertNotIn("discord", html.lower())

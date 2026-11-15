@@ -142,11 +142,32 @@
 	   on long pages it comes after the content. Never fixed or sticky. #}
 	<footer class="site-footer">
 		<p><span class="site-footer-name">Durham Superposition</span> © 2026</p>
+		{# Legal pages: public, linked from every page (legal.py) #}
+		<nav class="site-footer-links" aria-label="Legal">
+			<a href="{{ url_for('legal.terms') }}">Terms and Conditions</a>
+			<a href="{{ url_for('legal.privacy') }}">Data and Security</a>
+		</nav>
 		<p>Not affiliated with Durham University.</p>
 	</footer>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="{{ url_for('static', filename='theme.js') }}"></script>
+	<script>
+		// AccountStateWatcher: if any request answers "terms_required" or "banned",
+		// reload so the server shows the acceptance or ban screen instead
+		(function () {
+			const original = window.fetch;
+			window.fetch = async (...args) => {
+				const response = await original(...args);
+				if (response.status === 403) {
+					response.clone().json().then((data) => {
+						if (data && (data.error === "terms_required" || data.error === "banned")) location.reload();
+					}).catch(() => {});
+				}
+				return response;
+			};
+		})();
+	</script>
 	{% block scripts %}{% endblock %}
 </body>
 

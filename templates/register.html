@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% from "legal/_agree.html" import agree_box %}
 {% block title %}Create account{% endblock %}
 
 {% block content %}
@@ -33,6 +34,8 @@
 					<input type="password" class="form-control" id="confirm_password" name="confirm_password"
 						minlength="8" required>
 				</div>
+
+				{{ agree_box(terms_error) }}
 
 				<button type="submit" class="btn btn-primary w-100">Create account</button>
 			</form>
