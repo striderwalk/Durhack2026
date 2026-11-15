@@ -1,0 +1,55 @@
+{# ModUser: one user's status, bans and past reports. The email shows only on request, and that's logged. #}
+{% extends "mod/_layout.html" %}
+{% from "mod/_macros.html" import age, user_link, target, ban_form %}
+{% set tab = "users" %}
+{% block title %}Moderation · {{ u.display_name }}{% endblock %}
+
+{% block mod %}
+<section class="mod-card" aria-labelledby="user-title">
+	<h2 id="user-title">{{ u.display_name }} <span class="mod-meta">#{{ u.id }}</span>
+		{% if u.is_moderator %}<span class="mod-badge">Moderator</span>{% endif %}
+		{% if u.banned %}<span class="mod-badge danger">{{ "Banned until " ~ u.ban_expires_at[:10] if u.ban_expires_at else "Banned" }}</span>{% endif %}</h2>
+	<p class="mb-1"><a href="{{ u.url }}">Open profile</a></p>
+	{% if u.email %}
+	<p class="mb-0">Verified email: <strong>{{ u.email }}</strong> <span class="mod-meta">(this view was logged)</span></p>
+	{% else %}
+	<p class="mb-0"><a href="?email=1">Show verified email</a> <span class="mod-meta">(logged in the audit log)</span></p>
+	{% endif %}
+</section>
+
+<section class="mod-card mod-actions" aria-labelledby="user-actions">
+	<h2 id="user-actions">Actions</h2>
+	{% if u.is_moderator %}
+	<p class="mod-meta mb-0">Moderators can't be banned.</p>
+	{% elif u.banned %}
+	<form data-mod-action="{{ url_for('moderation.api_unban_user', user_id=u.id) }}" data-confirm="Lift the ban on {{ u.display_name }}?">
+		<label class="form-label" for="unban-reason">Reason</label>
+		<input class="form-control" id="unban-reason" name="reason" maxlength="500">
+		<p class="safety-error" role="alert"></p>
+		<button type="submit" class="btn btn-outline-primary">Lift ban</button>
+	</form>
+	{% else %}
+	{{ ban_form(u.id, ban_days, default_days) }}
+	{% endif %}
+</section>
+
+<section class="mod-card" aria-labelledby="bans-title">
+	<h2 id="bans-title">Bans</h2>
+	{% if u.bans %}
+	<ul class="mod-list">{% for b in u.bans %}
+		<li>{{ b.type | capitalize }} · {{ b.reason }} · from {{ age(b.created_at) }}
+			{% if b.expires_at %} until {{ age(b.expires_at) }}{% endif %}
+			{% if b.lifted_at %}<span class="mod-badge">lifted {{ b.lifted_at[:10] }}</span>{% endif %}</li>
+	{% endfor %}</ul>
+	{% else %}<p class="mod-meta mb-0">No bans.</p>{% endif %}
+</section>
+
+<section class="mod-card" aria-labelledby="flags-title">
+	<h2 id="flags-title">Reports about them or their interests</h2>
+	{% if u.flags %}
+	<ul class="mod-list">{% for f in u.flags %}
+		<li><a href="{{ url_for('moderation.mod_flag', flag_id=f.id) }}">#{{ f.id }}</a> {{ target(f) }} · {{ f.reason }} · {{ f.status }} · {{ age(f.created_at) }}</li>
+	{% endfor %}</ul>
+	{% else %}<p class="mod-meta mb-0">No reports.</p>{% endif %}
+</section>
+{% endblock %}

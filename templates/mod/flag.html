@@ -1,0 +1,80 @@
+{# ModFlag: one report, a preview of what was reported, and the actions #}
+{% extends "mod/_layout.html" %}
+{% from "mod/_macros.html" import age, user_link, target, ban_form %}
+{% set tab = "queue" %}
+{% block title %}Report #{{ f.id }}{% endblock %}
+
+{% block mod %}
+<a href="{{ url_for('moderation.mod_queue') }}">← All reports</a>
+<section class="mod-card mt-3" aria-labelledby="flag-title">
+	<h2 id="flag-title">Report #{{ f.id }} <span class="mod-badge">{{ f.reason }}</span> <span class="mod-badge">{{ f.status }}</span></h2>
+	<p class="mb-1">{{ target(f) }}</p>
+	<p class="mb-1">Reported by: {{ user_link(f.reporter) }} <span class="mod-meta">(never shown to the reported person)</span></p>
+	<p class="mod-meta">Reported {{ age(f.created_at) }}</p>
+	{% if f.message %}<p>“{{ f.message }}”</p>{% else %}<p class="mod-meta">No message.</p>{% endif %}
+	{% if f.resolution_note %}<p class="mod-meta">Resolution note: {{ f.resolution_note }}</p>{% endif %}
+</section>
+
+{# Preview of what was reported #}
+<section class="mod-card" aria-labelledby="preview-title">
+	<h2 id="preview-title">{{ "Reported profile" if f.target_type == "user" else "Reported interest" }}</h2>
+	{% if f.target_type == "user" and f.target %}
+	<p>{{ user_link(f.target) }} · <a href="{{ f.target.url }}">open profile</a></p>
+	{% elif f.target %}
+	<p><strong>{{ f.target.name }}</strong> {% if f.target.removed %}<span class="mod-badge danger">Removed: {{ f.target.removal_reason }}</span>{% else %}· <a href="{{ f.target.url }}">open page</a>{% endif %}</p>
+	{% if f.target.description %}<p>{{ f.target.description }}</p>{% endif %}
+	<p class="mb-0">Created by: {{ user_link(f.target.creator) }}</p>
+	{% else %}
+	<p class="mod-meta">It no longer exists.</p>
+	{% endif %}
+</section>
+
+<section class="mod-card mod-actions" aria-labelledby="actions-title">
+	<h2 id="actions-title">Actions</h2>
+	{% if f.status == "open" %}
+	<form data-mod-action="{{ url_for('moderation.api_dismiss_flag', flag_id=f.id) }}">
+		<label class="form-label" for="dismiss-note">Resolution note</label>
+		<input class="form-control" id="dismiss-note" name="note" maxlength="500">
+		<p class="safety-error" role="alert"></p>
+		<div class="d-flex gap-2 flex-wrap">
+			<button type="submit" class="btn btn-outline-secondary">Dismiss report</button>
+			<button type="submit" class="btn btn-primary" formaction="{{ url_for('moderation.api_action_flag', flag_id=f.id) }}">Mark as actioned</button>
+		</div>
+	</form>
+	{% endif %}
+
+	{% if f.target_type == "interest" and f.target %}
+	{% if not f.target.removed %}
+	<form data-mod-action="{{ url_for('moderation.api_remove_interest', interest_id=f.target.id) }}" data-confirm="Remove this interest? It disappears from search, pages and profiles (it can be restored).">
+		<h3>Remove interest</h3>
+		<label class="form-label" for="remove-reason">Reason (required)</label>
+		<input class="form-control" id="remove-reason" name="reason" maxlength="500" required>
+		<p class="safety-error" role="alert"></p>
+		<button type="submit" class="btn btn-danger">Remove interest</button>
+	</form>
+	{% else %}
+	<form data-mod-action="{{ url_for('moderation.api_restore_interest', interest_id=f.target.id) }}">
+		<h3>Restore interest</h3>
+		<label class="form-label" for="restore-reason">Reason (required)</label>
+		<input class="form-control" id="restore-reason" name="reason" maxlength="500" required>
+		<p class="safety-error" role="alert"></p>
+		<button type="submit" class="btn btn-outline-primary">Restore interest</button>
+	</form>
+	{% endif %}
+	{% endif %}
+
+	{% set person = f.target if f.target_type == "user" else (f.target.creator if f.target else none) %}
+	{% if person %}
+	{% if person.banned %}
+	<form data-mod-action="{{ url_for('moderation.api_unban_user', user_id=person.id) }}" data-confirm="Lift the ban on {{ person.display_name }}?">
+		<h3>Lift ban on {{ person.display_name }}</h3>
+		<input type="hidden" name="reason" value="Lifted from report #{{ f.id }}">
+		<p class="safety-error" role="alert"></p>
+		<button type="submit" class="btn btn-outline-primary">Lift ban</button>
+	</form>
+	{% else %}
+	{{ ban_form(person.id, ban_days, default_days) }}
+	{% endif %}
+	{% endif %}
+</section>
+{% endblock %}
