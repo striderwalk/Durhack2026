@@ -27,6 +27,7 @@ bp = flask.Blueprint("profiles", __name__)
 def _template_helpers():
 	return {
 		"category_style": colours.category_style,
+		"category_vars": colours.category_vars,
 		"avatar_colour": colours.avatar_colour,
 		"contacts_json": profile_api.contacts_json,
 		"category_theme_css": colours.theme_css,

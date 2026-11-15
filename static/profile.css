@@ -703,34 +703,56 @@ body:has(.profile-body[data-editing="true"]) {
     font-weight: 600;
 }
 
-/* Interest pills with a remove button in edit mode */
-.interest-pill-item {
+/* InterestItems: one pill per interest, in its own category's soft colours
+   (.cat-pill and .cat-dot are shared with the home page: style.css) */
+.interest-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.interest-item {
     display: inline-flex;
     align-items: center;
-    border-radius: 999px;
-    background: var(--pill-bg);
+    gap: .2rem;
+    max-width: 100%;
 }
 
-.interest-pill-item .interest-pill {
-    background: transparent;
+.interest-item-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    font-weight: 600;
 }
 
+.interest-item-cat {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    opacity: .85;
+}
+
+/* Edit mode: a small × beside each pill */
 .pill-remove {
     display: inline-flex;
+    flex: none;
     align-items: center;
     justify-content: center;
     width: 28px;
     height: 28px;
-    margin-right: .3rem;
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: var(--pill-fg);
+    color: var(--cat-text, var(--muted));
 }
 
 .pill-remove:hover,
 .pill-remove:focus-visible {
-    background: color-mix(in srgb, var(--pill-fg) 15%, transparent);
+    background: color-mix(in srgb, var(--cat) 20%, transparent);
 }
 
 .add-interest {
