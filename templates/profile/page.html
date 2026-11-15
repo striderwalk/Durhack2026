@@ -6,6 +6,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='safety.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -22,6 +23,11 @@
 	<div id="profile-view" data-edit-on-load="{{ 'true' if request.args.get('edit') and p.viewer_relation == 'self' else 'false' }}">
 		{% include "profile/_body.html" %}
 	</div>
+	{% if not p.can_preview %}
+	{% import "safety/_dialogs.html" as safety %}
+	{{ safety.block_dialog(p.id, p.display_name) }}
+	{{ safety.report_dialog("user", p.id, p.display_name) }}
+	{% endif %}
 	<p class="profile-load-error" id="profile-load-error" role="alert" hidden>
 		Couldn't load that view. <a href="" id="profile-retry">Try again</a>
 	</p>
@@ -33,4 +39,5 @@
 <script src="{{ url_for('static', filename='contacts.js') }}"></script>
 <script src="{{ url_for('static', filename='account.js') }}"></script>
 <script src="{{ url_for('static', filename='profile.js') }}"></script>
+<script src="{{ url_for('static', filename='safety.js') }}"></script>
 {% endblock %}

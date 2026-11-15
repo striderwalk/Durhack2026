@@ -16,6 +16,7 @@ import flask
 import flask_login
 from sqlalchemy.exc import SQLAlchemyError
 
+import moderation
 import profile_api
 
 bp = flask.Blueprint("settings", __name__)
@@ -36,7 +37,7 @@ def page():
 	except SQLAlchemyError:
 		flask.current_app.logger.exception("Settings lookup failed")
 		return flask.make_response(flask.render_template("profile/error.html", kind="unavailable"), 503)
-	return flask.render_template("settings/page.html", p=profile)
+	return flask.render_template("settings/page.html", p=profile, blocked=moderation.my_blocked_list(user.user_id))
 
 
 def init_app(app):

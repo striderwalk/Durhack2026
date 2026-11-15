@@ -103,6 +103,10 @@
 			<ul class="site-menu-links">
 				<li><a href="/">Home</a></li>
 				<li><a href="/u/">Profile</a></li>
+				{# Moderators only; the server checks again on every /mod request #}
+				{% if current_user.is_authenticated and is_moderator() %}
+				<li><a href="{{ url_for('moderation.mod_queue') }}">Moderation</a></li>
+				{% endif %}
 				{% if current_user.is_authenticated %}
 				<li><a href="{{ url_for('profiles.my_connections') }}">Connections</a></li>
 				{% endif %}

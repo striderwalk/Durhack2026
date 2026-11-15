@@ -1,0 +1,67 @@
+{# Safety dialogs, shared by the profile and interest pages (static/safety.js).
+   Native modal <dialog>: focus stays inside, Escape closes it. The server checks
+   everything (moderation.py); these only collect the answer. #}
+
+{# ReportDialog: reason (radio list), optional message (500 characters), then a thank-you #}
+{% macro report_dialog(target_type, target_id, target_name) -%}
+<dialog class="safety-dialog" id="report-dialog" aria-labelledby="report-title"
+	data-target-type="{{ target_type }}" data-target-id="{{ target_id }}">
+	<form class="report-form" novalidate>
+		<h2 class="safety-dialog-title" id="report-title">Report {{ target_name }}</h2>
+		<fieldset>
+			<legend class="safety-legend">Why are you reporting this?</legend>
+			{% for value, label in [("spam", "Spam"), ("harassment", "Harassment or bullying"),
+				("inappropriate", "Inappropriate content"), ("impersonation", "Pretending to be someone else"), ("other", "Something else")] %}
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="reason" id="reason-{{ value }}" value="{{ value }}" {% if loop.first %}required{% endif %}>
+				<label class="form-check-label" for="reason-{{ value }}">{{ label }}</label>
+			</div>
+			{% endfor %}
+		</fieldset>
+		<label class="form-label mt-3" for="report-message">Anything else a moderator should know? <span class="optional">optional</span></label>
+		<textarea class="form-control" id="report-message" name="message" rows="3" maxlength="500" aria-describedby="report-count"></textarea>
+		<p class="form-text text-end" id="report-count"><span data-count>0</span> / 500</p>
+		<p class="safety-error" role="alert"></p>
+		<p class="form-text">The person you report isn't told who reported them.</p>
+		<div class="safety-actions">
+			<button type="button" class="btn btn-outline-secondary" data-close>Cancel</button>
+			<button type="submit" class="btn btn-primary">Submit report</button>
+		</div>
+	</form>
+	<div class="report-done" hidden>
+		<h2 class="safety-dialog-title">Report sent</h2>
+		<p role="status">Thanks. A moderator will review this.</p>
+		<div class="safety-actions"><button type="button" class="btn btn-primary" data-close>Close</button></div>
+	</div>
+</dialog>
+{%- endmacro %}
+
+{# BlockDialog: explains what blocking does before it happens #}
+{% macro block_dialog(user_id, name) -%}
+<dialog class="safety-dialog" id="block-dialog" aria-labelledby="block-title" data-user-id="{{ user_id }}">
+	<h2 class="safety-dialog-title" id="block-title">Block {{ name }}?</h2>
+	<ul class="safety-list">
+		<li>Neither of you will see the other's profile, or appear on each other's interest pages.</li>
+		<li>Any connection or wave between you ends.</li>
+		<li>They aren't told. You can unblock them in Settings.</li>
+	</ul>
+	<p class="safety-error" role="alert"></p>
+	<div class="safety-actions">
+		<button type="button" class="btn btn-outline-secondary" data-close>Cancel</button>
+		<button type="button" class="btn btn-danger" data-confirm-block>Block</button>
+	</div>
+</dialog>
+{%- endmacro %}
+
+{# MoreMenu: the ⋯ button on someone else's profile, with Block and Report #}
+{% macro more_menu() -%}
+<div class="more-menu">
+	<button type="button" class="more-toggle" aria-expanded="false" aria-controls="more-menu-list" aria-label="More actions">
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+	</button>
+	<ul class="more-menu-list" id="more-menu-list" hidden>
+		<li><button type="button" data-open-dialog="block-dialog">Block user</button></li>
+		<li><button type="button" data-open-dialog="report-dialog">Report user</button></li>
+	</ul>
+</div>
+{%- endmacro %}
