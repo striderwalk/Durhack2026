@@ -393,3 +393,13 @@ class ModAction(db.Model):
 	target_id = db.Column(db.Integer, nullable=False)
 	details = db.Column(db.Text, default="")
 	created_at = db.Column(db.DateTime, default=utc_now, nullable=False)
+
+
+class TermsAcceptance(db.Model):
+	"""A user accepted the Terms and the data information at this version (legal.py)."""
+	__tablename__ = "terms_acceptances"
+
+	acceptance_id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False, index=True)
+	version = db.Column(db.String(20), nullable=False)  # one combined version for both documents
+	accepted_at = db.Column(db.DateTime, default=utc_now, nullable=False)

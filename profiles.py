@@ -193,6 +193,10 @@ def init_app(app):
 	# Trust and safety: sign-in gate, bans, blocks, reports, moderators (moderation.py)
 	import moderation
 	moderation.init_app(app)
+	# Terms and data information, and accepting them (legal.py); after moderation,
+	# so its checks run after the sign-in and ban gate
+	import legal
+	legal.init_app(app)
 
 
 # Add to profiles.py
